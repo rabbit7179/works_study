@@ -104,7 +104,11 @@ const SEED_WORDS=[{"id":"seed-1","word":"neutrophil","ipa":"/ˈnuːtrəfɪl/","c
 
 const KEY="neutrophil_vocab_v2";
 const TODAY_KEY="neutrophil_today_v2";
-let words=JSON.parse(localStorage.getItem(KEY)||"null") || SEED_WORDS.map(w=>({...w,level:0,nextReview:null,lastReview:null,streak:0}));
+let words=JSON.parse(localStorage.getItem(KEY)||"null");
+if(!Array.isArray(words) || words.length===0){
+  words=SEED_WORDS.map(w=>({...w,level:0,nextReview:null,lastReview:null,streak:0}));
+  localStorage.setItem(KEY,JSON.stringify(words));
+}
 let todayState=JSON.parse(localStorage.getItem(TODAY_KEY)||"null") || null;
 
 function mergeSeed(seed){
