@@ -99,26 +99,34 @@ nav button{flex:1;border:0;background:white;padding:12px 4px;font-size:13px;colo
 </div>
 
 
+<script src="seed.js"></script>
 <script>
 const KEY="neutrophil_vocab_v2";
 const TODAY_KEY="neutrophil_today_v2";
-let words=JSON.parse(localStorage.getItem(KEY)||"null") || [];
+let words=JSON.parse(localStorage.getItem(KEY)||"null") || SEED_WORDS.map(w=>({...w,level:0,nextReview:null,lastReview:null,streak:0}));
 let todayState=JSON.parse(localStorage.getItem(TODAY_KEY)||"null") || null;
 
+function mergeSeed(seed){
+  const byId=new Set(words.map(w=>w.id));
+  let changed=false;
+  seed.forEach(w=>{
+    if(!byId.has(w.id)){
+      words.push({...w,level:0,nextReview:null,lastReview:null,streak:0});
+      changed=true;
+    }
+  });
+  if(changed)localStorage.setItem(KEY,JSON.stringify(words));
+}
+
 async function syncSeedWords(){
+  // Always merge bundled seed first, so the app never shows zero.
+  mergeSeed(SEED_WORDS);
   try{
     const r=await fetch("words-20260909.json?ts="+Date.now(),{cache:"no-store"});
-    if(!r.ok) return;
-    const seed=await r.json();
-    const byId=new Map(words.map(w=>[w.id,w]));
-    let changed=false;
-    seed.forEach(w=>{
-      if(!byId.has(w.id)){
-        words.push({...w,level:0,nextReview:null,lastReview:null,streak:0});
-        changed=true;
-      }
-    });
-    if(changed)localStorage.setItem(KEY,JSON.stringify(words));
+    if(r.ok){
+      const remote=await r.json();
+      mergeSeed(remote);
+    }
   }catch(e){}
 }
 let reviewQueue=[], reviewIndex=0;
