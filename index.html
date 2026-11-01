@@ -181,7 +181,7 @@ function render(){
       </div>`;
     d.querySelector(".speaker").onclick=()=>speak(w.word);
     d.querySelector(".edit").onclick=()=>openModal(w);
-    d.querySelector(".manual").onclick=()=>rateWord(w,"easy",false);
+    d.querySelector(".manual").onclick=()=>{w.level=Math.max(4,w.level||0);w.lastReview=todayStr();w.nextReview=addDays(todayStr(),14);save();};
     d.querySelector(".del").onclick=()=>{if(confirm(`删除 ${w.word}？`)){words=words.filter(x=>x.id!==w.id);save()}};
     box.appendChild(d);
   })
