@@ -108,7 +108,22 @@ function emoji(kind){return {bed:"🛏️",bowl:"🥣",cup:"🍼",ball:"🧶",pl
 function pieceElement(f,forEdit){let d=document.createElement("div");d.className="furniture";d.style.left=f.x+"%";d.style.top=f.y+"%";d.style.rotate=f.rot+"deg";d.innerHTML='<div class="pic">'+emoji(f.kind)+'</div><span class="fname">'+label(f.kind)+'</span>';
 if(forEdit){if(selectedFurniture===f.id)d.classList.add("selected");d.addEventListener("pointerdown",e=>{e.preventDefault();selectedFurniture=f.id;let sc=$("editScene");d.setPointerCapture(e.pointerId);d.classList.add("selected");let move=ev=>{let b=sc.getBoundingClientRect(),xx=16+68*((ev.clientX-b.left)/b.width-.16)/.68,yy=(ev.clientY-b.top)/b.height*100;f.x=Math.min(92,Math.max(8,xx));f.y=Math.min(85,Math.max(37,yy));d.style.left=f.x+"%";d.style.top=f.y+"%";};let up=()=>{d.removeEventListener("pointermove",move);d.removeEventListener("pointerup",up);save();renderFurniture()};d.addEventListener("pointermove",move);d.addEventListener("pointerup",up);});}else d.onclick=()=>{show(label(f.kind)+"：这是奶糖的物品。")};return d}
 function renderFurniture(){for(const [layer,isEdit] of [["furnLayer",false],["editLayer",true]]){let n=$(layer);n.innerHTML="";s.furniture.forEach(f=>n.appendChild(pieceElement(f,isEdit)))}}
-function renderCats(){let layer=$("catLayer");layer.innerHTML="";s.cats.forEach((c,i)=>{let d=document.createElement("div");d.className="kitty";d.id="catVisual"+i;d.style.left=c.x+"%";d.style.top=c.y+"%";let age=1+Math.floor((s.gameMs-c.bornMs)/DAY_MS);let k=Math.min(1.75,.57+(age-1)*.063);d.style.width=(110*k)+"px";d.style.height=(134*k)+"px";d.innerHTML=svgCat(c.breed);d.title=c.name;d.onclick=()=>{s.selectedCat=i;show("你选中了"+c.name+"！");render()};if(active&&active.index===i)d.classList.add("act-"+active.type);else if(gameHour()>=20||gameHour()<6){if(s.gameMs>c.awakeUntil)d.classList.add("act-sleep")}layer.appendChild(d)})}
+function renderCats(){
+ let layer=$("catLayer"),current=new Set();
+ s.cats.forEach((c,i)=>{
+  let id="catVisual"+i;current.add(id);
+  let d=$(id);
+  if(!d){d=document.createElement("div");d.className="kitty";d.id=id;d.innerHTML=svgCat(c.breed);layer.appendChild(d)}
+  d.style.left=c.x+"%";d.style.top=c.y+"%";
+  let age=1+Math.floor((s.gameMs-c.bornMs)/DAY_MS),k=Math.min(1.75,.57+(age-1)*.063);
+  d.style.width=(110*k)+"px";d.style.height=(134*k)+"px";d.title=c.name;
+  d.onclick=()=>{s.selectedCat=i;show("你选中了"+c.name+"！");render()};
+  d.className="kitty";
+  if(active&&active.index===i)d.classList.add(active.phase==="walking"?"stroll":"act-"+active.type);
+  else if((gameHour()>=20||gameHour()<6)&&s.gameMs>c.awakeUntil)d.classList.add("act-sleep");
+ });
+ Array.from(layer.children).forEach(d=>{if(!current.has(d.id))d.remove()})
+}
 function renderRoom(){if(!s.started)return;let c=cat();$("coins").textContent="🪙 "+s.coins;$("catTitle").textContent=c.name+" · "+stage(c)+ (s.cats.length>1?" · 点击猫咪切换":"");$("day").textContent="第 "+day()+" 天";$("supplies").textContent="🥫 猫粮 "+s.food+"份 · 💧 清水 "+s.water+"份";for(let k of ["food","water","love"]){$(k+"N").textContent=Math.round(c[k]);$(k+"B").style.width=c[k]+"%"}let h=gameHour(),m=Math.floor((s.gameMs%DAY_MS)/DAY_MS*1440)%60;$("clock").textContent=(h>=19||h<6?"🌙":"☀️")+" 第"+day()+"天 "+String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");$("scene").classList.toggle("night",h>=19||h<6);renderFurniture();renderCats()}
 function render(){if(!s.started){$("adopt").classList.remove("hidden");$("game").classList.add("hidden");renderBreeds();return}$("adopt").classList.add("hidden");$("game").classList.remove("hidden");renderRoom();if(tab==="work")renderWork();if(tab==="shop")renderShop();if(tab==="decorate")$("editInfo").textContent=editing?"已暂停时间：拖动家具可摆放，选中后旋转。":"点击进入装修模式后，可以拖动家具。";if(tab==="more")renderMore()}
 function renderBreeds(){let n=$("breeds");n.innerHTML="";breeds.forEach(b=>{let d=document.createElement("button");d.className="breed"+(selectedBreed===b[0]?" selected":"");d.innerHTML='<div class="emoji">'+b[2]+'</div><div>'+b[1]+'</div>';d.onclick=()=>{selectedBreed=b[0];renderBreeds()};n.appendChild(d)})}
@@ -135,9 +150,36 @@ else{a=rng(100,500);b=rng(100,400);v=a+b;text=a+" + "+b+" = ?";steps="先把个�
 let opts=new Set([v]);let n=0;while(opts.size<4&&n++<100){let d=v+rng(-Math.max(5,Math.round(v*.17)),Math.max(5,Math.round(v*.17)));if(d>=0)opts.add(d)}while(opts.size<4)opts.add(v+opts.size+1);
 return {text:text,value:v,steps:steps,options:[...opts].sort(()=>Math.random()-.5),lvl:lvl}}
 function ensureQ(){if(!s.q)s.q=makeQ(s.mathLevel)}
-function renderWork(){ensureQ();$("mathLevel").textContent="Lv."+s.mathLevel;$("mathInfo").textContent=(mathLabels[Math.min(s.mathLevel,10)-1]||"综合练习")+" · 本轮已做 "+s.mathDone+"/20 题，16题及以上答对升级";$("mathProgress").style.width=s.mathDone/20*100+"%";$("problem").textContent=s.q.text;$("answers").innerHTML="";for(let n of s.q.options){let b=document.createElement("button");b.textContent=n;b.disabled=s.answered;if(s.answered&&n===s.q.value)b.classList.add("good");if(s.answered&&n===s.lastAnswer&&n!==s.q.value)b.classList.add("bad");b.onclick=()=>answer(n);$("answers").appendChild(b)}$("explanation").classList.toggle("hidden",!s.answered);$("nextProblem").classList.toggle("hidden",!s.answered);$("mathRecord").textContent="本轮答对 "+s.mathCorrect+" 题";if(s.answered)$("explanation").textContent=(s.lastAnswer===s.q.value?"✅ 回答正确，+10金币！":"🌷 正确答案是 "+s.q.value+"。")+" 计算方法："+s.q.steps;renderWrongbook()}
-function answer(n){if(s.answered)return;ensureQ();s.answered=true;s.lastAnswer=n;s.mathDone++;let good=n===s.q.value;if(good){s.coins+=10;s.mathCorrect++}else{s.wrong.unshift({text:s.q.text,answer:s.q.value,steps:s.q.steps,level:s.mathLevel,when:day()});s.practice.push(s.q.lvl);if(s.practice.length>20)s.practice.shift()}s.mathHistory.push({level:s.mathLevel,question:s.q.text,expected:s.q.value,selected:n,correct:good});save();render()}
-function nextQ(){if(s.mathDone>=20){let passed=s.mathCorrect>=16;let label=passed?"🎉 通过本级！进入下一难度。":"本轮正确率不足80%，安排巩固后再挑战。";if(passed)s.mathLevel++;s.mathDone=0;s.mathCorrect=0;show(label);alert(label)}s.q=makeQ(s.mathLevel);s.answered=false;save();render()}
+function renderWork(){ensureQ();$("mathLevel").textContent="Lv."+s.mathLevel;$("mathInfo").textContent=(s.q&&s.q.practice?"🌷 错题巩固（不计入正式20题） · ":"")+(mathLabels[Math.min(s.mathLevel,10)-1]||"综合练习")+" · 本轮已做 "+s.mathDone+"/20 题，16题及以上答对升级";$("mathProgress").style.width=s.mathDone/20*100+"%";$("problem").textContent=s.q.text;$("answers").innerHTML="";for(let n of s.q.options){let b=document.createElement("button");b.textContent=n;b.disabled=s.answered;if(s.answered&&n===s.q.value)b.classList.add("good");if(s.answered&&n===s.lastAnswer&&n!==s.q.value)b.classList.add("bad");b.onclick=()=>answer(n);$("answers").appendChild(b)}$("explanation").classList.toggle("hidden",!s.answered);$("nextProblem").classList.toggle("hidden",!s.answered);$("mathRecord").textContent="本轮答对 "+s.mathCorrect+" 题";if(s.answered)$("explanation").textContent=(s.lastAnswer===s.q.value?(s.q.practice?"✅ 巩固题答对啦！":"✅ 回答正确，+10金币！"):"🌷 正确答案是 "+s.q.value+"。")+" 计算方法："+s.q.steps;renderWrongbook()}
+function answer(n){
+ if(s.answered)return;ensureQ();s.answered=true;s.lastAnswer=n;
+ const good=n===s.q.value;
+ if(s.q.practice){
+  if(!good)s.wrong.unshift({text:s.q.text,answer:s.q.value,steps:s.q.steps,level:s.q.lvl,when:day(),practice:true});
+ }else{
+  s.mathDone++;
+  if(good){s.coins+=10;s.mathCorrect++}
+  else{
+   s.wrong.unshift({text:s.q.text,answer:s.q.value,steps:s.q.steps,level:s.mathLevel,when:day()});
+   s.practice.push(s.q.lvl);if(s.practice.length>20)s.practice.shift();
+  }
+  s.mathHistory.push({level:s.mathLevel,question:s.q.text,expected:s.q.value,selected:n,correct:good});
+ }
+ save();render()
+}
+function nextQ(){
+ if(s.mathDone>=20){
+  let passed=s.mathCorrect>=16;
+  let label=passed?"🎉 通过本级！进入下一难度。":"本轮正确率不足80%，安排巩固后再挑战。";
+  if(passed)s.mathLevel++;
+  s.mathDone=0;s.mathCorrect=0;show(label);alert(label)
+ }
+ // Occasionally mix in a similar question from the skills missed previously.
+ if(s.practice.length&&Math.random()<.28){
+  let lvl=s.practice.shift();s.q=makeQ(lvl);s.q.practice=true;
+ }else{s.q=makeQ(s.mathLevel)}
+ s.answered=false;save();render()
+}
 function renderWrongbook(){let d=$("wrongbook");d.classList.toggle("hidden",!wrongOpen);if(!wrongOpen)return;d.innerHTML="<h3>📘 错题本（最近20题）</h3>";for(let q of s.wrong.slice(0,20)){let p=document.createElement("div");p.className="note";p.textContent=q.text+" 正确答案："+q.answer+"。"+q.steps;d.appendChild(p)}if(!s.wrong.length)d.innerHTML+="<p>还没有错题，真棒！</p>"}
 function buy(g){let [id,em,name,price,type,field,qty]=g;if(s.coins<price)return;if(type==="house"&&id!=="house"+(s.house+1))return;if(type==="furniture"&&s.furniture.some(f=>f.kind===id)){show("已经拥有这个家具啦！");return}s.coins-=price;if(type==="supply")s[field]+=qty;else if(type==="house")s.house++;else s.furniture.push({id:id+"-"+Date.now(),kind:id,x:48,y:65,rot:0});show("买到 "+name+" 啦！");save();render()}
 function renderShop(){$("shopGrid").innerHTML="";catalog.forEach(g=>{let [id,em,name,price,type]=g;if(type==="house"&&Number(id.slice(-1))<=s.house)return;let locked=type==="house"&&Number(id.slice(-1))!==s.house+1,owned=type==="furniture"&&s.furniture.some(f=>f.kind===id);let d=document.createElement("div");d.className="product";d.innerHTML='<div class="emoji">'+em+'</div><strong>'+name+'</strong><small>'+price+' 金币</small>';let b=document.createElement("button");b.className="mini";b.textContent=owned?"已拥有":locked?"尚未解锁":"购买";b.disabled=locked||owned||s.coins<price;b.onclick=()=>buy(g);d.appendChild(b);$("shopGrid").appendChild(d)})}
