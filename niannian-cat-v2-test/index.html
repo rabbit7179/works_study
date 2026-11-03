@@ -120,7 +120,8 @@ function renderCats(){
   d.onclick=()=>{s.selectedCat=i;show("你选中了"+c.name+"！");render()};
   d.className="kitty";
   if(active&&active.index===i)d.classList.add(active.phase==="walking"?"stroll":"act-"+active.type);
-  else if((gameHour()>=20||gameHour()<6)&&s.gameMs>c.awakeUntil)d.classList.add("act-sleep");
+  else if(c.sleepWalkingUntil&&performance.now()<c.sleepWalkingUntil)d.classList.add("stroll");
+  else if(c.manualSleep||((gameHour()>=20||gameHour()<6)&&s.gameMs>c.awakeUntil))d.classList.add("act-sleep");
  });
  Array.from(layer.children).forEach(d=>{if(!current.has(d.id))d.remove()})
 }
@@ -130,10 +131,24 @@ function renderBreeds(){let n=$("breeds");n.innerHTML="";breeds.forEach(b=>{let 
 let selectedBreed="orange";
 function adopt(){let name=$("newCatName").value.trim()||"奶糖";s.started=true;s.cats.push(createCat(selectedBreed,name));snapshot("第1天 · "+name+"来到新家");show("欢迎回家，"+name+"！你今天照顾小猫了吗？今天工作了吗？");save();render()}
 function action(type){if(active||editing)return;let c=cat(),index=s.selectedCat;let destination={feed:[71,69],drink:[85,65],sleep:[19,67],play:[44,65],pet:[43,58],wake:[19,67]}[type];if(type==="feed"&&s.food<=0){show("猫粮没有了！去商店买吧。");return}if(type==="drink"&&s.water<=0){show("水没有了！去商店买吧。");return}
-if(type==="wake"){c.awakeUntil=s.gameMs+DAY_MS/6;if(gameHour()<19&&gameHour()>=6){type="sleep";c.awakeUntil=0}else{show(c.name+"醒来伸懒腰啦！");save();renderRoom();return}}
+if(type==="wake"){
+ if(c.manualSleep){c.manualSleep=false;c.awakeUntil=s.gameMs+DAY_MS/6;show(c.name+"醒来伸懒腰啦！");save();renderRoom();return}
+ c.awakeUntil=s.gameMs+DAY_MS/6;
+ if(gameHour()<20&&gameHour()>=6){type="sleep";c.awakeUntil=0}
+ else{c.nightBed=false;show(c.name+"醒来伸懒腰啦！");save();renderRoom();return}
+}
+if(type!=="sleep"){c.manualSleep=false;c.nightBed=false}
 active={type,index,phase:"walking"};c.x=destination[0];c.y=destination[1];renderRoom();show(c.name+"正在走过去……");setTimeout(()=>{if(!active||active.index!==index)return;active.phase="doing";renderCats();let obj=$("actionObj");obj.className="cataction on";obj.style.left=(destination[0]+8)+"%";obj.style.top=(destination[1]+17)+"%";obj.textContent={feed:"🥣",drink:"🍼",play:"🧶",pet:"💗",sleep:"💤"}[type];show({feed:"正在低头吃食盆里的猫粮……",drink:"正在用吸管喝水……",play:"正在追毛线球！",pet:"呼噜呼噜，好舒服！",sleep:"闭上眼睛睡着了……"}[type]);},1150);
-activeTimer=setTimeout(()=>{if(type==="feed"){s.food--;c.food=clamp(c.food+36);c.love=clamp(c.love+3)}if(type==="drink"){s.water--;c.water=clamp(c.water+36);c.love=clamp(c.love+3)}if(type==="play"){c.love=clamp(c.love+8);c.food=clamp(c.food-3)}if(type==="pet")c.love=clamp(c.love+5);if(type==="sleep")c.love=clamp(c.love+2);c.cared[day()]=Object.assign(c.cared[day()]||{},{[type]:true});active=null;$("actionObj").className="cataction";show(c.name+"好开心！💗");save();render();},type==="sleep"?7000:4500)}
-function tick(){if(!s.started||document.hidden||editing)return;let n=performance.now(),dt=Math.min(2000,Math.max(0,n-visibleSince));visibleSince=n;s.gameMs+=dt;runMs+=dt;for(let c of s.cats){c.food=clamp(c.food-dt/DAY_MS*34);c.water=clamp(c.water-dt/DAY_MS*38);if(c.food<18||c.water<18){if(!active)$("bubble").textContent=c.name+(c.food<18?"饿啦，想吃饭！":"渴啦，想喝水！")}}if(s.cats.length===1&&day()>=20&&!s.cats[0].adultPhoto){s.cats[0].adultPhoto=true;snapshot(s.cats[0].name+"成年啦！第二只猫解锁")}if(runMs>6000){runMs=0;save()}if(tab==="room")renderRoom();if(tab==="more")renderMore()}
+activeTimer=setTimeout(()=>{if(type==="feed"){s.food--;c.food=clamp(c.food+36);c.love=clamp(c.love+3)}if(type==="drink"){s.water--;c.water=clamp(c.water+36);c.love=clamp(c.love+3)}if(type==="play"){c.love=clamp(c.love+8);c.food=clamp(c.food-3)}if(type==="pet")c.love=clamp(c.love+5);if(type==="sleep"){c.love=clamp(c.love+2);c.manualSleep=true;c.nightBed=true;c.x=19;c.y=70;}c.cared[day()]=Object.assign(c.cared[day()]||{},{[type]:true});active=null;$("actionObj").className="cataction";show(type==="sleep"?c.name+"已经回到猫窝，睡得好香！💤":c.name+"好开心！💗");save();render();},type==="sleep"?7000:4500)}
+function tick(){if(!s.started||document.hidden||editing)return;let n=performance.now(),dt=Math.min(2000,Math.max(0,n-visibleSince));visibleSince=n;s.gameMs+=dt;runMs+=dt;for(let c of s.cats){
+  const nighttime=gameHour()>=20||gameHour()<6;
+  if(nighttime&&s.gameMs>c.awakeUntil&&!c.manualSleep&&!(active&&s.cats[active.index]===c)){
+    if(!c.nightBed){
+      c.nightBed=true;c.x=19;c.y=70;c.sleepWalkingUntil=n+1300;
+      if(s.cats[s.selectedCat]===c)show(c.name+"困啦，正在走回猫窝睡觉……");
+    }
+  }else if(!nighttime){c.nightBed=false}
+  if(c.sleepWalkingUntil&&n>=c.sleepWalkingUntil)c.sleepWalkingUntil=0;c.food=clamp(c.food-dt/DAY_MS*34);c.water=clamp(c.water-dt/DAY_MS*38);if(c.food<18||c.water<18){if(!active)$("bubble").textContent=c.name+(c.food<18?"饿啦，想吃饭！":"渴啦，想喝水！")}}if(s.cats.length===1&&day()>=20&&!s.cats[0].adultPhoto){s.cats[0].adultPhoto=true;snapshot(s.cats[0].name+"成年啦！第二只猫解锁")}if(runMs>6000){runMs=0;save()}if(tab==="room")renderRoom();if(tab==="more")renderMore()}
 document.addEventListener("visibilitychange",()=>{visibleSince=performance.now();if(document.hidden)save()});setInterval(tick,1000);
 const mathLabels=["两位数不进位加法","两位数进位加法","两位数不退位减法","两位数退位减法","100以内加减混合","乘法口诀","整除练习","乘加混合","生活应用题","综合挑战"];
 function makeQ(lvl){let a,b,v,text,steps;let t=Math.min(lvl,10),tries=0;
