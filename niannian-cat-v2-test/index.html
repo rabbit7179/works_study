@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fff1df">
+<title>念念的喵喵成长屋 · 测试版</title>
+<style>
+:root{font-family:ui-rounded,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#56465c;background:#fff1eb;font-size:16px}
+*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer;touch-action:manipulation;border:0}button:disabled{opacity:.48;cursor:default}
+.app{max-width:650px;margin:auto;min-height:100dvh;padding:14px 14px calc(30px + env(safe-area-inset-bottom));background:linear-gradient(170deg,#fff6f2,#fffdf7)}
+.header,.flex{display:flex;align-items:center;justify-content:space-between;gap:10px}.header h1{font-size:21px;margin:6px 0}.pill{border-radius:30px;background:white;box-shadow:0 2px 10px #aa82751a;padding:8px 12px;font-weight:800;font-size:13px;white-space:nowrap}
+button.primary{border-radius:16px;background:#e77498;color:white;font-weight:850;padding:12px 18px;min-height:43px}
+button.secondary{border-radius:14px;background:#fff0e2;color:#995f77;font-weight:800;padding:10px 13px;border:1px solid #f5d0cf}
+button.mini{font-size:12px;padding:7px 9px;border-radius:10px;background:#f7e6ec;color:#8c5170;font-weight:800}
+button:active:not(:disabled){transform:scale(.975)}
+.panel{border-radius:22px;background:#fff;box-shadow:0 3px 15px #bd95841a;padding:16px;margin:12px 0}
+h2{font-size:19px;margin:3px 0 12px}h3{font-size:16px;margin:7px 0}.muted{font-size:12px;color:#9a7f88}.tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;position:sticky;bottom:7px;z-index:20;background:#fff9f3eb;padding:8px 5px;border-radius:18px;box-shadow:0 -3px 18px #b98a891c;margin-top:14px;backdrop-filter:blur(8px)}
+.tabs button{padding:9px 2px;font-size:11px;font-weight:800;background:transparent;color:#8c7380;border-radius:12px}.tabs button.active{background:#fddce8;color:#b44f7d}
+.hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{border-radius:13px;background:#fff6ee;padding:9px;font-size:11px;font-weight:800}.track{height:8px;background:#e8dadd;border-radius:10px;overflow:hidden;margin-top:7px}.track i{display:block;height:100%;background:linear-gradient(90deg,#e4a3a9,#e86c9b);width:50%;border-radius:10px}
+.scene{width:100%;height:335px;position:relative;overflow:hidden;border-radius:23px;border:4px solid #fff;box-shadow:0 8px 20px #986f6530;background:linear-gradient(180deg,#d8eefa 0 53%,#f4dfc8 53% 59%,#c79d7e 59%);transition:background .5s}
+.scene.night{background:linear-gradient(180deg,#303e66 0 53%,#63627f 53% 59%,#816d76 59%)}
+.scene:after{content:"";position:absolute;left:-15%;bottom:-45%;width:130%;height:80%;transform:perspective(300px) rotateX(43deg);background:repeating-linear-gradient(90deg,transparent 0 34px,#ffffff22 34px 36px),repeating-linear-gradient(0deg,#d6b292 0 31px,#b98d70 31px 33px);pointer-events:none}
+.window{position:absolute;left:33%;top:16px;width:33%;height:105px;border:9px solid #eac6a8;border-radius:8px;background:linear-gradient(#8ccce4,#c7edec);z-index:1;box-shadow:0 5px 10px #58473325}.window:before{content:"";position:absolute;left:47%;top:0;bottom:0;border-left:6px solid #eac6a8}.window:after{content:"";position:absolute;top:50%;left:0;right:0;border-top:6px solid #eac6a8}.night .window{background:linear-gradient(#253659,#5b739c)}
+.clock{position:absolute;z-index:9;top:8px;right:8px;font-size:11px;font-weight:900;background:#fffbecea;padding:7px 9px;border-radius:20px}
+.furniture{position:absolute;z-index:3;user-select:none;touch-action:none;text-align:center;min-width:58px;transform:translate(-50%,-50%);filter:drop-shadow(2px 6px 2px #654d3455);cursor:pointer}
+.furniture .pic{font-size:45px;line-height:1.1}.furniture .fname{font-size:10px;background:#fff9e7dc;border-radius:10px;padding:1px 5px;white-space:nowrap}
+.furniture.selected{outline:2px dashed #ef6991;border-radius:12px;background:#ffe5eb66}
+.kitty{position:absolute;z-index:6;left:24%;top:56%;width:74px;height:92px;transform:translate(-50%,-50%);transition:left 1.05s ease,top 1.05s ease,width .3s,height .3s;filter:drop-shadow(1px 8px 3px #543d3855);cursor:pointer}
+.kitty svg{width:100%;height:100%;overflow:visible}.kitty .ears,.kitty .head{transform-origin:50% 50%}.kitty .tail{transform-origin:75% 75%;animation:tailmove 2s infinite alternate}.kitty .blink{opacity:0}.kitty .tongue{opacity:0}.kitty.act-feed .head,.kitty.act-drink .head{animation:nibble .4s infinite alternate}.kitty.act-feed .tongue,.kitty.act-drink .tongue{opacity:1}.kitty.act-sleep{transform:translate(-50%,-50%) rotate(70deg)}.kitty.act-sleep .eyes{opacity:0}.kitty.act-sleep .blink{opacity:1}.kitty.act-play{animation:hop .5s infinite alternate}
+@keyframes tailmove{to{transform:rotate(13deg)}}@keyframes nibble{to{transform:translateY(9px) rotate(2deg)}}@keyframes hop{to{translate:0 -18px}}
+.kitty.stroll{animation:steps .22s infinite alternate}@keyframes steps{to{translate:0 -5px}}
+.kitty .zzz{display:none}.kitty.act-sleep .zzz{display:block}
+.cataction{position:absolute;z-index:7;font-size:33px;transform:translate(-50%,-50%);display:none}.cataction.on{display:block}
+.bubble{position:absolute;top:9px;left:9px;z-index:10;background:#fffdf4e8;color:#74525d;font-size:12px;line-height:1.45;padding:9px 11px;border-radius:15px;max-width:57%}
+.actions{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:10px 0}.actions button{background:#fff;border:1px solid #f4d9db;border-radius:13px;padding:10px 2px;font-size:12px;font-weight:800}
+.problem{background:#fff1d8;border-radius:19px;text-align:center;padding:25px 8px;font-size:clamp(22px,6vw,35px);font-weight:900;line-height:1.3;margin:15px 0}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:9px}.options button{font-size:22px;font-weight:900;padding:15px;border-radius:15px;background:#fbe7ef;border:2px solid #f4c4d7}.options button.good{background:#cdf5dd;border-color:#62b98c}.options button.bad{background:#ffe1df;border-color:#ee9595}
+.note{background:#fff4df;border-radius:14px;padding:13px;margin-top:13px;font-size:14px;line-height:1.75}
+.product{background:#fffaf2;border-radius:15px;padding:12px;text-align:center}.product .emoji{font-size:33px}.product small{color:#9a7e86;display:block;font-size:11px}.product button{margin-top:8px}
+input[type=text],input[type=password],input[type=number]{border:1px solid #e5cbd3;border-radius:12px;padding:11px;min-width:0;width:100%;background:white}
+.breed{padding:10px;border-radius:14px;background:#fff8ef;border:2px solid transparent;text-align:center}.breed.selected{border-color:#ed87ae;background:#ffedf4}.breed .emoji{font-size:37px}.breed div{font-size:13px;font-weight:800}
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px}.photo{background:#fff3df;border-radius:13px;padding:8px;font-size:12px}.photo svg{max-width:100%;border-radius:9px}
+.footer{text-align:center;font-size:11px;color:#a98b91;margin:10px 0}
+@media(max-width:390px){.scene{height:300px}.actions button{font-size:11px}.header h1{font-size:19px}}
+</style></head><body><div class="app">
+<div class="header"><h1>🐾 念念的喵喵成长屋</h1><div class="pill" id="coins">🪙 50</div></div>
+<div id="adopt" class="panel">
+<h2>🏡 欢迎来到领养中心</h2><p class="muted">第一次来，先选一只很小的小奶猫吧！</p>
+<div id="breeds" class="grid"></div>
+<p style="margin-bottom:5px;font-weight:800">给小猫起名字</p><input id="newCatName" type="text" value="奶糖" maxlength="10">
+<div class="note">🎁 领养礼包：50金币、猫粮×5、清水×5、食盆、吸管水杯、小猫窝。</div>
+<button class="primary" id="adoptBtn" style="width:100%;margin-top:15px">🐱 领养小猫，带它回家</button>
+</div>
+<div id="game" class="hidden">
+<section id="room">
+<div class="flex" style="margin:5px 0 9px"><strong id="catTitle">奶糖 · 小奶猫</strong><span class="muted" id="day">第1天</span></div>
+<div class="stats"><div class="stat">🥣 饱腹 <b id="foodN">80</b><div class="track"><i id="foodB"></i></div></div><div class="stat">💧 水分 <b id="waterN">80</b><div class="track"><i id="waterB"></i></div></div><div class="stat">💗 亲密 <b id="loveN">0</b><div class="track"><i id="loveB"></i></div></div></div>
+<div class="scene" id="scene"><div class="window"></div><div class="clock" id="clock">☀️ 第1天 06:00</div><div class="bubble" id="bubble">喵～欢迎回家！</div><div id="furnLayer"></div><div id="catLayer"></div><div id="actionObj" class="cataction"></div></div>
+<div class="actions"><button data-care="feed">🥣<div>喂食</div></button><button data-care="drink">🍼<div>喝水</div></button><button data-care="pet">🫳<div>抚摸</div></button><button data-care="play">🧶<div>玩耍</div></button><button data-care="wake">🌙<div>叫醒/睡觉</div></button></div>
+<div class="flex"><span class="muted" id="supplies">猫粮5 · 水5</span><button class="mini" id="takePhoto">📸 拍照</button></div>
+<div class="note" id="careNote">第一次领养的小猫很小，照顾它慢慢长大吧。</div>
+</section>
+<section id="work" class="hidden">
+<div class="panel"><div class="flex"><h2>📚 数学工作</h2><span class="pill" id="mathLevel">Lv.1</span></div><p class="muted" id="mathInfo"></p><div class="track"><i id="mathProgress" style="width:0"></i></div>
+<div class="problem" id="problem"></div><div class="options" id="answers"></div><div id="explanation" class="note hidden"></div><button id="nextProblem" class="primary hidden" style="width:100%;margin-top:13px">下一题</button>
+<div class="flex" style="margin-top:13px"><button class="secondary" id="wrongbookBtn">📘 错题本</button><span class="muted" id="mathRecord"></span></div>
+<div id="wrongbook" class="hidden"></div></div>
+</section>
+<section id="shop" class="hidden"><div class="panel"><h2>🛍️ 猫咪商店</h2><p class="muted">数学工作每答对一道正式题目获得10金币。购买的多份食物直接进入库存。</p><div id="shopGrid" class="grid"></div></div></section>
+<section id="decorate" class="hidden"><div class="panel"><h2>🪑 装修模式</h2><p class="muted">进入装修模式后游戏时间暂停。点击家具选中，可在房间图中拖动位置，或点击旋转。家具不能超出房间边界。</p><div class="flex"><button class="primary" id="editToggle">进入装修模式</button><button class="secondary" id="rotate">↻ 旋转选中家具</button></div><p id="editInfo" class="muted"></p><div class="scene" id="editScene" style="margin-top:12px"><div class="window"></div><div id="editLayer"></div></div></div></section>
+<section id="more" class="hidden"><div class="panel"><h2>📖 成长相册</h2><p class="muted">重要成长时刻自动记录，也能手动拍照。照片为与当前房间状态相对应的示意快照。</p><div id="photos" class="gallery"></div><hr style="border:0;border-top:1px solid #f2e5e4;margin:18px 0"><h2>🐾 猫咪档案</h2><div id="catProfiles"></div><button id="secondAdopt" class="secondary hidden">领养第二只猫</button></div>
+<div class="panel"><h2>🔐 家长设置 · 测试版</h2><p class="muted">目前采用本地存档，可下载/恢复 JSON 备份。尚未连接云端；本地家长 PIN 仅防误触，不代表服务器级保护。</p>
+<div class="flex"><input type="password" inputmode="numeric" id="pin" maxlength="12" placeholder="家长PIN（首次设置4位以上）"><button id="unlock" class="secondary">进入</button></div>
+<div id="parentArea" class="hidden"><button class="secondary" id="export">⬇️ 导出完整存档</button><button class="secondary" id="importBtn">⬆️ 恢复备份</button><input type="file" accept=".json,application/json" id="importInput" class="hidden"><button class="secondary" id="reset" style="color:#be4b5b">重新开始</button><p class="muted">备份包含姓名、猫咪和学习记录。请由家长妥善保管，勿公开分享。</p></div>
+</div></section>
+<nav class="tabs" id="nav"><button data-tab="room" class="active">🐱<div>房间</div></button><button data-tab="work">📚<div>工作</div></button><button data-tab="shop">🛍️<div>商店</div></button><button data-tab="decorate">🪑<div>装修</div></button><button data-tab="more">📖<div>相册</div></button></nav>
+</div><p class="footer">独立测试版 · 2.5D可交互原型（非照片级3D）· 无广告无内购 · 不覆盖旧站</p>
+</div>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id),KEY="niannian-cat-v2-isolated-1",DAY_MS=900000;
+const breeds=[["orange","橘猫","🐈","#e9aa72"],["ragdoll","布偶猫","🐱","#eee8e0"],["gray","英短蓝猫","🐈","#9ca4b5"],["tuxedo","奶牛猫","🐈‍⬛","#363943"]];
+const catalog=[
+["food","🥫","猫粮 ×3",15,"supply","food",3],
+["water","💧","清水 ×3",9,"supply","water",3],
+["fish","🐟","小鱼干 ×2",20,"supply","food",2],
+["ball","🧶","毛线球",40,"furniture"],
+["plant","🪴","绿植",35,"furniture"],
+["rug","🟣","柔软地毯",60,"furniture"],
+["tree","🌳","猫爬架",250,"furniture"],
+["house2","🏡","温馨猫屋升级",500,"house"],
+["house3","🏰","喵喵大别墅",1500,"house"]
+];
+const defaultGame=()=>({version:2,started:false,coins:50,food:5,water:5,gameMs:0,mathLevel:1,mathDone:0,mathCorrect:0,mathHistory:[],wrong:[],q:null,answered:false,practice:[],cats:[],selectedCat:0,furniture:[{id:"bed-1",kind:"bed",x:19,y:70,rot:0},{id:"bowl-1",kind:"bowl",x:71,y:75,rot:0},{id:"cup-1",kind:"cup",x:87,y:71,rot:0}],house:1,photos:[],dailyLast:0,pinHash:null});
+let s=defaultGame();try{let v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.version===2)s=Object.assign(defaultGame(),v)}catch(e){}
+let tab="room",active=null,activeTimer=null,editing=false,selectedFurniture=null,visibleSince=performance.now(),runMs=0,wrongOpen=false,adoptSecond=false;
+const clamp=n=>Math.max(0,Math.min(100,n)),rng=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){$("careNote").textContent="存储空间不足，请家长导出备份！"}}
+function cat(){return s.cats[s.selectedCat]||s.cats[0]}
+function day(){return Math.floor(s.gameMs/DAY_MS)+1}
+function gameHour(){return Math.floor((s.gameMs%DAY_MS)/DAY_MS*24)}
+function stage(c){let d=1+Math.floor((s.gameMs-c.bornMs)/DAY_MS);return d>=20?"成年猫":d>=15?"青年猫":d>=10?"少年猫":d>=5?"幼猫":"小奶猫"}
+function show(t){$("careNote").textContent=t;$("bubble").textContent=t}
+function createCat(breed,name){return {id:"cat-"+Date.now()+"-"+rng(100,999),breed:breed,name:name||"奶糖",bornMs:s.gameMs,food:80,water:80,love:10,x:24,y:56,cared:{},awakeUntil:0}}
+function svgCat(breed){const fur=(breeds.find(b=>b[0]===breed)||breeds[0])[3];return '<svg viewBox="0 0 130 158" xmlns="http://www.w3.org/2000/svg"><g class="tail"><path d="M95 113Q133 123 119 78" stroke="'+fur+'" stroke-width="16" fill="none" stroke-linecap="round"/></g><ellipse cx="65" cy="115" rx="42" ry="34" fill="'+fur+'"/><ellipse cx="64" cy="127" rx="19" ry="24" fill="#fff8f0"/><ellipse cx="38" cy="143" rx="17" ry="10" fill="#fff4e5"/><ellipse cx="90" cy="143" rx="17" ry="10" fill="#fff4e5"/><g class="head"><path d="M22 47L16 10L46 32L82 32L112 10L108 48" fill="'+fur+'" stroke="#c28f80" stroke-width="2"/><path d="M23 38L23 21L40 34M89 34L107 21L105 39" fill="#efafb4"/><ellipse cx="65" cy="66" rx="51" ry="47" fill="'+fur+'"/><ellipse cx="65" cy="84" rx="28" ry="24" fill="#fff8ee"/><g class="eyes"><ellipse cx="44" cy="62" rx="8" ry="11" fill="#4a4141"/><ellipse cx="87" cy="62" rx="8" ry="11" fill="#4a4141"/><circle cx="46" cy="59" r="3" fill="#fff"/><circle cx="89" cy="59" r="3" fill="#fff"/></g><g class="blink" stroke="#594747" stroke-width="3" fill="none"><path d="M36 62Q44 70 52 62M79 62Q87 70 95 62"/></g><path d="M60 80L70 80L65 87Z" fill="#d98791"/><path d="M65 87Q59 94 54 89M65 87Q71 94 76 89" stroke="#805c58" stroke-width="2" fill="none"/><path class="tongue" d="M62 92Q65 102 69 92" fill="#e47788"/><path d="M39 83L18 80M39 89L16 92M91 83L112 80M91 89L115 92" stroke="#866e61" stroke-width="1.5"/></g><text class="zzz" x="95" y="20" font-size="16" fill="#7d72ae">Zzz</text></svg>'}
+function changeTab(v){if(editing&&v!=="decorate")setEditing(false);tab=v;["room","work","shop","decorate","more"].forEach(id=>$(id).classList.toggle("hidden",id!==tab));document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));render()}
+function label(kind){return {bed:"猫窝",bowl:"食盆",cup:"吸管水杯",ball:"毛线球",plant:"绿植",rug:"地毯",tree:"猫爬架"}[kind]||kind}
+function emoji(kind){return {bed:"🛏️",bowl:"🥣",cup:"🍼",ball:"🧶",plant:"🪴",rug:"🟣",tree:"🌳"}[kind]||"🪑"}
+function pieceElement(f,forEdit){let d=document.createElement("div");d.className="furniture";d.style.left=f.x+"%";d.style.top=f.y+"%";d.style.rotate=f.rot+"deg";d.innerHTML='<div class="pic">'+emoji(f.kind)+'</div><span class="fname">'+label(f.kind)+'</span>';
+if(forEdit){if(selectedFurniture===f.id)d.classList.add("selected");d.addEventListener("pointerdown",e=>{e.preventDefault();selectedFurniture=f.id;let sc=$("editScene");d.setPointerCapture(e.pointerId);d.classList.add("selected");let move=ev=>{let b=sc.getBoundingClientRect(),xx=16+68*((ev.clientX-b.left)/b.width-.16)/.68,yy=(ev.clientY-b.top)/b.height*100;f.x=Math.min(92,Math.max(8,xx));f.y=Math.min(85,Math.max(37,yy));d.style.left=f.x+"%";d.style.top=f.y+"%";};let up=()=>{d.removeEventListener("pointermove",move);d.removeEventListener("pointerup",up);save();renderFurniture()};d.addEventListener("pointermove",move);d.addEventListener("pointerup",up);});}else d.onclick=()=>{show(label(f.kind)+"：这是奶糖的物品。")};return d}
+function renderFurniture(){for(const [layer,isEdit] of [["furnLayer",false],["editLayer",true]]){let n=$(layer);n.innerHTML="";s.furniture.forEach(f=>n.appendChild(pieceElement(f,isEdit)))}}
+function renderCats(){let layer=$("catLayer");layer.innerHTML="";s.cats.forEach((c,i)=>{let d=document.createElement("div");d.className="kitty";d.id="catVisual"+i;d.style.left=c.x+"%";d.style.top=c.y+"%";let age=1+Math.floor((s.gameMs-c.bornMs)/DAY_MS);let k=Math.min(1.75,.57+(age-1)*.063);d.style.width=(110*k)+"px";d.style.height=(134*k)+"px";d.innerHTML=svgCat(c.breed);d.title=c.name;d.onclick=()=>{s.selectedCat=i;show("你选中了"+c.name+"！");render()};if(active&&active.index===i)d.classList.add("act-"+active.type);else if(gameHour()>=20||gameHour()<6){if(s.gameMs>c.awakeUntil)d.classList.add("act-sleep")}layer.appendChild(d)})}
+function renderRoom(){if(!s.started)return;let c=cat();$("coins").textContent="🪙 "+s.coins;$("catTitle").textContent=c.name+" · "+stage(c)+ (s.cats.length>1?" · 点击猫咪切换":"");$("day").textContent="第 "+day()+" 天";$("supplies").textContent="🥫 猫粮 "+s.food+"份 · 💧 清水 "+s.water+"份";for(let k of ["food","water","love"]){$(k+"N").textContent=Math.round(c[k]);$(k+"B").style.width=c[k]+"%"}let h=gameHour(),m=Math.floor((s.gameMs%DAY_MS)/DAY_MS*1440)%60;$("clock").textContent=(h>=19||h<6?"🌙":"☀️")+" 第"+day()+"天 "+String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");$("scene").classList.toggle("night",h>=19||h<6);renderFurniture();renderCats()}
+function render(){if(!s.started){$("adopt").classList.remove("hidden");$("game").classList.add("hidden");renderBreeds();return}$("adopt").classList.add("hidden");$("game").classList.remove("hidden");renderRoom();if(tab==="work")renderWork();if(tab==="shop")renderShop();if(tab==="decorate")$("editInfo").textContent=editing?"已暂停时间：拖动家具可摆放，选中后旋转。":"点击进入装修模式后，可以拖动家具。";if(tab==="more")renderMore()}
+function renderBreeds(){let n=$("breeds");n.innerHTML="";breeds.forEach(b=>{let d=document.createElement("button");d.className="breed"+(selectedBreed===b[0]?" selected":"");d.innerHTML='<div class="emoji">'+b[2]+'</div><div>'+b[1]+'</div>';d.onclick=()=>{selectedBreed=b[0];renderBreeds()};n.appendChild(d)})}
+let selectedBreed="orange";
+function adopt(){let name=$("newCatName").value.trim()||"奶糖";s.started=true;s.cats.push(createCat(selectedBreed,name));snapshot("第1天 · "+name+"来到新家");show("欢迎回家，"+name+"！你今天照顾小猫了吗？今天工作了吗？");save();render()}
+function action(type){if(active||editing)return;let c=cat(),index=s.selectedCat;let destination={feed:[71,69],drink:[85,65],sleep:[19,67],play:[44,65],pet:[43,58],wake:[19,67]}[type];if(type==="feed"&&s.food<=0){show("猫粮没有了！去商店买吧。");return}if(type==="drink"&&s.water<=0){show("水没有了！去商店买吧。");return}
+if(type==="wake"){c.awakeUntil=s.gameMs+DAY_MS/6;if(gameHour()<19&&gameHour()>=6){type="sleep";c.awakeUntil=0}else{show(c.name+"醒来伸懒腰啦！");save();renderRoom();return}}
+active={type,index,phase:"walking"};c.x=destination[0];c.y=destination[1];renderRoom();show(c.name+"正在走过去……");setTimeout(()=>{if(!active||active.index!==index)return;active.phase="doing";renderCats();let obj=$("actionObj");obj.className="cataction on";obj.style.left=(destination[0]+8)+"%";obj.style.top=(destination[1]+17)+"%";obj.textContent={feed:"🥣",drink:"🍼",play:"🧶",pet:"💗",sleep:"💤"}[type];show({feed:"正在低头吃食盆里的猫粮……",drink:"正在用吸管喝水……",play:"正在追毛线球！",pet:"呼噜呼噜，好舒服！",sleep:"闭上眼睛睡着了……"}[type]);},1150);
+activeTimer=setTimeout(()=>{if(type==="feed"){s.food--;c.food=clamp(c.food+36);c.love=clamp(c.love+3)}if(type==="drink"){s.water--;c.water=clamp(c.water+36);c.love=clamp(c.love+3)}if(type==="play"){c.love=clamp(c.love+8);c.food=clamp(c.food-3)}if(type==="pet")c.love=clamp(c.love+5);if(type==="sleep")c.love=clamp(c.love+2);c.cared[day()]=Object.assign(c.cared[day()]||{},{[type]:true});active=null;$("actionObj").className="cataction";show(c.name+"好开心！💗");save();render();},type==="sleep"?7000:4500)}
+function tick(){if(!s.started||document.hidden||editing)return;let n=performance.now(),dt=Math.min(2000,Math.max(0,n-visibleSince));visibleSince=n;s.gameMs+=dt;runMs+=dt;for(let c of s.cats){c.food=clamp(c.food-dt/DAY_MS*34);c.water=clamp(c.water-dt/DAY_MS*38);if(c.food<18||c.water<18){if(!active)$("bubble").textContent=c.name+(c.food<18?"饿啦，想吃饭！":"渴啦，想喝水！")}}if(s.cats.length===1&&day()>=20&&!s.cats[0].adultPhoto){s.cats[0].adultPhoto=true;snapshot(s.cats[0].name+"成年啦！第二只猫解锁")}if(runMs>6000){runMs=0;save()}if(tab==="room")renderRoom();if(tab==="more")renderMore()}
+document.addEventListener("visibilitychange",()=>{visibleSince=performance.now();if(document.hidden)save()});setInterval(tick,1000);
+const mathLabels=["两位数不进位加法","两位数进位加法","两位数不退位减法","两位数退位减法","100以内加减混合","乘法口诀","整除练习","乘加混合","生活应用题","综合挑战"];
+function makeQ(lvl){let a,b,v,text,steps;let t=Math.min(lvl,10),tries=0;
+if(t===1){do{a=rng(11,79);b=rng(10,99-a)}while((a%10+b%10)>=10&&tries++<100);v=a+b;text=a+" + "+b+" = ?";steps="个位："+(a%10)+" + "+(b%10)+" = "+(v%10)+"。十位："+Math.floor(a/10)+" + "+Math.floor(b/10)+" = "+Math.floor(v/10)+"。所以答案是 "+v+"。"}
+else if(t===2){do{a=rng(15,79);b=rng(11,99-a)}while(a%10+b%10<10&&tries++<100);v=a+b;text=a+" + "+b+" = ?";steps="个位："+(a%10)+" + "+(b%10)+" = "+(a%10+b%10)+"，写"+v%10+"，向十位进1。十位："+Math.floor(a/10)+" + "+Math.floor(b/10)+" + 1 = "+Math.floor(v/10)+"。答案是"+v+"。"}
+else if(t===3){do{a=rng(30,98);b=rng(11,a-1)}while(a%10<b%10&&tries++<100);v=a-b;text=a+" − "+b+" = ?";steps="个位："+a%10+" − "+b%10+" = "+v%10+"。十位："+Math.floor(a/10)+" − "+Math.floor(b/10)+" = "+Math.floor(v/10)+"。答案是 "+v+"。"}
+else if(t===4){do{a=rng(30,98);b=rng(11,a-1)}while(a%10>=b%10&&tries++<100);v=a-b;text=a+" − "+b+" = ?";steps="个位不够减，向十位借1个十："+(a%10+10)+" − "+b%10+" = "+v%10+"。十位借走1后再减："+(Math.floor(a/10)-1)+" − "+Math.floor(b/10)+" = "+Math.floor(v/10)+"。答案是"+v+"。"}
+else if(t===5){a=rng(15,50);b=rng(11,40);let d=rng(1,Math.min(25,a+b));v=a+b-d;text=a+" + "+b+" − "+d+" = ?";steps="先算 "+a+" + "+b+" = "+(a+b)+"，再算 "+(a+b)+" − "+d+" = "+v+"。"}
+else if(t===6){a=rng(2,9);b=rng(2,9);v=a*b;text=a+" × "+b+" = ?";steps="把 "+a+" 看作一组，一共有 "+b+" 组。"+a+" × "+b+" = "+v+"。"}
+else if(t===7){a=rng(2,9);b=rng(2,9);v=a;text=a*b+" ÷ "+b+" = ?";steps="想一想 "+b+" × 几等于 "+(a*b)+"？因为 "+b+" × "+a+" = "+a*b+"，所以答案是"+a+"。"}
+else if(t===8){a=rng(2,9);b=rng(2,9);let d=rng(1,20);v=a*b+d;text=a+" × "+b+" + "+d+" = ?";steps="先乘后加："+a+" × "+b+" = "+a*b+"，再加 "+d+" 得 "+v+"。"}
+else if(t===9){a=rng(12,50);b=rng(11,35);v=a+b;text="奶糖有"+a+"颗猫粮，又得到"+b+"颗，一共有几颗？";steps="求一共多少，用加法："+a+" + "+b+" = "+v+"颗。"}
+else{a=rng(100,500);b=rng(100,400);v=a+b;text=a+" + "+b+" = ?";steps="先把个位、十位、百位分别相加，满10进1。"+a+" + "+b+" = "+v+"。"}
+let opts=new Set([v]);let n=0;while(opts.size<4&&n++<100){let d=v+rng(-Math.max(5,Math.round(v*.17)),Math.max(5,Math.round(v*.17)));if(d>=0)opts.add(d)}while(opts.size<4)opts.add(v+opts.size+1);
+return {text:text,value:v,steps:steps,options:[...opts].sort(()=>Math.random()-.5),lvl:lvl}}
+function ensureQ(){if(!s.q)s.q=makeQ(s.mathLevel)}
+function renderWork(){ensureQ();$("mathLevel").textContent="Lv."+s.mathLevel;$("mathInfo").textContent=(mathLabels[Math.min(s.mathLevel,10)-1]||"综合练习")+" · 本轮已做 "+s.mathDone+"/20 题，16题及以上答对升级";$("mathProgress").style.width=s.mathDone/20*100+"%";$("problem").textContent=s.q.text;$("answers").innerHTML="";for(let n of s.q.options){let b=document.createElement("button");b.textContent=n;b.disabled=s.answered;if(s.answered&&n===s.q.value)b.classList.add("good");if(s.answered&&n===s.lastAnswer&&n!==s.q.value)b.classList.add("bad");b.onclick=()=>answer(n);$("answers").appendChild(b)}$("explanation").classList.toggle("hidden",!s.answered);$("nextProblem").classList.toggle("hidden",!s.answered);$("mathRecord").textContent="本轮答对 "+s.mathCorrect+" 题";if(s.answered)$("explanation").textContent=(s.lastAnswer===s.q.value?"✅ 回答正确，+10金币！":"🌷 正确答案是 "+s.q.value+"。")+" 计算方法："+s.q.steps;renderWrongbook()}
+function answer(n){if(s.answered)return;ensureQ();s.answered=true;s.lastAnswer=n;s.mathDone++;let good=n===s.q.value;if(good){s.coins+=10;s.mathCorrect++}else{s.wrong.unshift({text:s.q.text,answer:s.q.value,steps:s.q.steps,level:s.mathLevel,when:day()});s.practice.push(s.q.lvl);if(s.practice.length>20)s.practice.shift()}s.mathHistory.push({level:s.mathLevel,question:s.q.text,expected:s.q.value,selected:n,correct:good});save();render()}
+function nextQ(){if(s.mathDone>=20){let passed=s.mathCorrect>=16;let label=passed?"🎉 通过本级！进入下一难度。":"本轮正确率不足80%，安排巩固后再挑战。";if(passed)s.mathLevel++;s.mathDone=0;s.mathCorrect=0;show(label);alert(label)}s.q=makeQ(s.mathLevel);s.answered=false;save();render()}
+function renderWrongbook(){let d=$("wrongbook");d.classList.toggle("hidden",!wrongOpen);if(!wrongOpen)return;d.innerHTML="<h3>📘 错题本（最近20题）</h3>";for(let q of s.wrong.slice(0,20)){let p=document.createElement("div");p.className="note";p.textContent=q.text+" 正确答案："+q.answer+"。"+q.steps;d.appendChild(p)}if(!s.wrong.length)d.innerHTML+="<p>还没有错题，真棒！</p>"}
+function buy(g){let [id,em,name,price,type,field,qty]=g;if(s.coins<price)return;if(type==="house"&&id!=="house"+(s.house+1))return;if(type==="furniture"&&s.furniture.some(f=>f.kind===id)){show("已经拥有这个家具啦！");return}s.coins-=price;if(type==="supply")s[field]+=qty;else if(type==="house")s.house++;else s.furniture.push({id:id+"-"+Date.now(),kind:id,x:48,y:65,rot:0});show("买到 "+name+" 啦！");save();render()}
+function renderShop(){$("shopGrid").innerHTML="";catalog.forEach(g=>{let [id,em,name,price,type]=g;if(type==="house"&&Number(id.slice(-1))<=s.house)return;let locked=type==="house"&&Number(id.slice(-1))!==s.house+1,owned=type==="furniture"&&s.furniture.some(f=>f.kind===id);let d=document.createElement("div");d.className="product";d.innerHTML='<div class="emoji">'+em+'</div><strong>'+name+'</strong><small>'+price+' 金币</small>';let b=document.createElement("button");b.className="mini";b.textContent=owned?"已拥有":locked?"尚未解锁":"购买";b.disabled=locked||owned||s.coins<price;b.onclick=()=>buy(g);d.appendChild(b);$("shopGrid").appendChild(d)})}
+function setEditing(v){editing=v;$("editToggle").textContent=v?"完成装修并保存":"进入装修模式";selectedFurniture=null;renderFurniture();visibleSince=performance.now();$("editInfo").textContent=v?"已暂停游戏时间。拖动家具并旋转位置。":"装修已保存。"}
+function photoSVG(p){let coat=(breeds.find(b=>b[0]===p.breed)||breeds[0])[3];let furniture=p.furniture.map(f=>'<text x="'+(f.x*3)+'" y="'+(f.y*1.75)+'" font-size="22">'+emoji(f.kind)+'</text>').join("");return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 185"><rect width="300" height="185" rx="12" fill="#f6e3d0"/><rect x="0" y="110" width="300" height="75" fill="#d7b596"/><rect x="115" y="17" width="70" height="67" fill="#bde8f3" stroke="#cda98c" stroke-width="8"/>'+furniture+'<circle cx="83" cy="108" r="30" fill="'+coat+'"/><path d="M61 91L62 65L79 81L96 65L101 93" fill="'+coat+'"/><ellipse cx="73" cy="106" rx="3" ry="5" fill="#443"/><ellipse cx="94" cy="106" rx="3" ry="5" fill="#443"/><path d="M81 113L89 113L85 119Z" fill="#d98f9c"/><rect x="5" y="156" width="290" height="24" fill="#fffaecec"/><text x="12" y="172" fill="#795c61" font-family="sans-serif" font-size="12">'+p.name.replace(/[<>&"]/g,"")+' · 第'+p.day+'天 · '+p.title.replace(/[<>&"]/g,"")+'</text></svg>'}
+function snapshot(title){let c=cat()||s.cats[0];if(!c)return;s.photos.unshift({id:Date.now()+rng(0,999),name:c.name,breed:c.breed,title:title,day:day(),furniture:s.furniture.map(f=>({kind:f.kind,x:f.x,y:f.y}))});if(s.photos.length>60)s.photos.length=60;save()}
+function renderMore(){let n=$("photos");n.innerHTML="";for(let p of s.photos){let d=document.createElement("div");d.className="photo";d.innerHTML=photoSVG(p);let text=document.createElement("div");text.textContent=p.title;d.appendChild(text);let b=document.createElement("button");b.className="mini";b.textContent="保存照片";b.onclick=()=>download("cat-"+p.id+".svg",photoSVG(p),"image/svg+xml");d.appendChild(b);n.appendChild(d)}$("catProfiles").innerHTML="";s.cats.forEach((c,i)=>{let b=document.createElement("button");b.className="secondary";b.style.margin="5px";b.textContent=c.name+" · "+stage(c)+(s.selectedCat===i?" ✓":"");b.onclick=()=>{s.selectedCat=i;changeTab("room")};$("catProfiles").appendChild(b)});$("secondAdopt").classList.toggle("hidden",!(day()>=20&&s.cats.length<2))}
+function download(name,data,type){let blob=new Blob([data],{type:type});let url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+async function hash(t){if(!crypto.subtle)throw Error("需安全连接以使用家长PIN");let buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("niannian-local-pin-v2:"+t));return Array.from(new Uint8Array(buf)).map(x=>x.toString(16).padStart(2,"0")).join("")}
+function backup(){return JSON.stringify({app:"niannian-cat-v2",exported:new Date().toISOString(),data:s},null,2)}
+async function restore(file){let obj=JSON.parse(await file.text());if(obj.app!=="niannian-cat-v2"||!obj.data||obj.data.version!==2||!Array.isArray(obj.data.cats)||!Array.isArray(obj.data.furniture)||!Array.isArray(obj.data.mathHistory))throw Error("不是有效的本游戏备份");if(!confirm("确认用备份替换当前测试版数据？请先导出当前备份。"))return;s=obj.data;save();location.reload()}
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>changeTab(b.dataset.tab));
+$("adoptBtn").onclick=adopt;$("nextProblem").onclick=nextQ;$("wrongbookBtn").onclick=()=>{wrongOpen=!wrongOpen;renderWrongbook()};
+document.querySelectorAll("[data-care]").forEach(b=>b.onclick=()=>action(b.dataset.care));
+$("takePhoto").onclick=()=>{snapshot(cat().name+"的日常");show("已记录在相册中！")};
+$("editToggle").onclick=()=>setEditing(!editing);$("rotate").onclick=()=>{let f=s.furniture.find(f=>f.id===selectedFurniture);if(!f){$("editInfo").textContent="请先点击选中一个家具";return}f.rot=(f.rot+90)%360;save();renderFurniture()};
+$("secondAdopt").onclick=()=>{if(s.cats.length>=2||day()<20)return;adoptSecond=true;let choice=prompt("第二只猫品种：请输入 橘猫 / 布偶猫 / 英短蓝猫 / 奶牛猫","布偶猫");if(!choice)return;let b=breeds.find(x=>x[1]===choice)||breeds[1];let name=prompt("给新小猫起名字","团团");if(name===null)return;s.cats.push(createCat(b[0],name.trim()||"团团"));s.selectedCat=1;snapshot("第二只猫来到家里");save();changeTab("room")};
+$("unlock").onclick=async()=>{let pin=$("pin").value.trim();if(pin.length<4){alert("请输入至少4位家长PIN");return}try{let h=await hash(pin);if(!s.pinHash){if(!confirm("将这个PIN设为本设备的家长PIN吗？请记住它。"))return;s.pinHash=h;save()}else if(s.pinHash!==h){alert("家长PIN不正确");return}$("parentArea").classList.remove("hidden");$("pin").value="";}catch(e){alert(e.message)}};
+$("export").onclick=()=>download("niannian-cat-backup-"+new Date().toISOString().slice(0,10)+".json",backup(),"application/json");
+$("importBtn").onclick=()=>$("importInput").click();$("importInput").onchange=async e=>{if(!e.target.files[0])return;try{await restore(e.target.files[0])}catch(err){alert("恢复失败："+err.message)}};
+$("reset").onclick=()=>{if(confirm("确定删除当前测试版存档吗？这不可撤销。")&&confirm("再次确认：所有测试版数据将丢失。")){localStorage.removeItem(KEY);location.reload()}};
+if(s.started){let c=cat();if(s.dailyLast!==day()){s.dailyLast=day();show("喵～今天照顾小猫了吗？今天想工作赚金币吗？")}else $("bubble").textContent="喵～欢迎回来！";}render();visibleSince=performance.now();
+})();
+</script></body></html>
