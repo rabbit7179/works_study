@@ -1,4 +1,4 @@
-const CACHE='neutrowords-v4';
+const CACHE='neutrowords-v5';
 const ASSETS=['./','./index.html','./seed.js','./manifest.json'];
 
 self.addEventListener('install',e=>{
