@@ -273,5 +273,6 @@ if("serviceWorker" in navigator){
     .then(reg=>reg.update()).catch(()=>{});
 }
 render();
+syncSeedWords().then(render).catch(()=>render());
 </script>
 </body></html>
