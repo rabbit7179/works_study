@@ -15,7 +15,7 @@ h2{font-size:19px;margin:3px 0 12px}h3{font-size:16px;margin:7px 0}.muted{font-s
 .tabs button{padding:9px 2px;font-size:11px;font-weight:800;background:transparent;color:#8c7380;border-radius:12px}.tabs button.active{background:#fddce8;color:#b44f7d}
 .hidden{display:none!important}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .stat{border-radius:13px;background:#fff6ee;padding:9px;font-size:11px;font-weight:800}.track{height:8px;background:#e8dadd;border-radius:10px;overflow:hidden;margin-top:7px}.track i{display:block;height:100%;background:linear-gradient(90deg,#e4a3a9,#e86c9b);width:50%;border-radius:10px}
-.scene{width:100%;height:335px;position:relative;overflow:hidden;border-radius:23px;border:4px solid #fff;box-shadow:0 8px 20px #986f6530;background:linear-gradient(180deg,#d8eefa 0 53%,#f4dfc8 53% 59%,#c79d7e 59%);transition:background .5s}
+.scene{width:100%;height:375px;position:relative;overflow:hidden;border-radius:23px;border:4px solid #fff;box-shadow:0 8px 20px #986f6530;background:linear-gradient(180deg,#d8eefa 0 53%,#f4dfc8 53% 59%,#c79d7e 59%);transition:background .5s}
 .scene.night{background:linear-gradient(180deg,#303e66 0 53%,#63627f 53% 59%,#816d76 59%)}
 .scene:after{content:"";position:absolute;left:-15%;bottom:-45%;width:130%;height:80%;transform:perspective(300px) rotateX(43deg);background:repeating-linear-gradient(90deg,transparent 0 34px,#ffffff22 34px 36px),repeating-linear-gradient(0deg,#d6b292 0 31px,#b98d70 31px 33px);pointer-events:none}
 .window{position:absolute;left:33%;top:16px;width:33%;height:105px;border:9px solid #eac6a8;border-radius:8px;background:linear-gradient(#8ccce4,#c7edec);z-index:1;box-shadow:0 5px 10px #58473325}.window:before{content:"";position:absolute;left:47%;top:0;bottom:0;border-left:6px solid #eac6a8}.window:after{content:"";position:absolute;top:50%;left:0;right:0;border-top:6px solid #eac6a8}.night .window{background:linear-gradient(#253659,#5b739c)}
@@ -25,9 +25,9 @@ h2{font-size:19px;margin:3px 0 12px}h3{font-size:16px;margin:7px 0}.muted{font-s
 .furniture.selected{outline:2px dashed #ef6991;border-radius:12px;background:#ffe5eb66}
 .kitty{position:absolute;z-index:6;left:24%;top:56%;width:74px;height:92px;transform:translate(-50%,-50%);transition:left 1.05s ease,top 1.05s ease,width .3s,height .3s;filter:drop-shadow(1px 8px 3px #543d3855);cursor:pointer}
 .kitty svg{width:100%;height:100%;overflow:visible}.kitty .ears,.kitty .head{transform-origin:50% 50%}.kitty .tail{transform-origin:75% 75%;animation:tailmove 2s infinite alternate}.kitty .blink{opacity:0}.kitty .tongue{opacity:0}.kitty.act-feed .head,.kitty.act-drink .head{animation:nibble .4s infinite alternate}.kitty.act-feed .tongue,.kitty.act-drink .tongue{opacity:1}.kitty.act-sleep{transform:translate(-50%,-50%) rotate(80deg) scale(.72)}
-.furniture.bed{width:94px;height:62px;min-width:94px}
-.furniture.bed .pic{font-size:0;width:94px;height:49px;border-radius:50%;border:10px solid #d999aa;background:radial-gradient(ellipse,#fff4e6,#ebc5b7);box-shadow:inset 0 4px 8px #986f6b55}
-.bed-front{position:absolute;z-index:8;width:83px;height:16px;background:linear-gradient(#edc2c9,#d58d9f);border-radius:5px 5px 45px 45px;border-bottom:4px solid #ae7587;transform:translate(-50%,-50%);pointer-events:none}.kitty.act-sleep .eyes{opacity:0}.kitty.act-sleep .blink{opacity:1}.kitty.act-play{animation:hop .5s infinite alternate}
+.furniture.bed{width:115px;height:76px;min-width:115px;z-index:4}
+.furniture.bed .pic{font-size:0;width:115px;height:65px;border-radius:50%;border:12px solid #d999aa;background:radial-gradient(ellipse,#fff4e6,#ebc5b7);box-shadow:inset 0 4px 8px #986f6b55}
+.bed-front{position:absolute;z-index:8;width:105px;height:22px;background:linear-gradient(#edc2c9,#d58d9f);border-radius:5px 5px 45px 45px;border-bottom:4px solid #ae7587;transform:translate(-50%,-50%);pointer-events:none}.kitty.act-sleep .eyes{opacity:0}.kitty.act-sleep .blink{opacity:1}.kitty.act-play{animation:hop .5s infinite alternate}
 @keyframes tailmove{to{transform:rotate(13deg)}}@keyframes nibble{to{transform:translateY(9px) rotate(2deg)}}@keyframes hop{to{translate:0 -18px}}
 .kitty.stroll{animation:steps .22s infinite alternate}@keyframes steps{to{translate:0 -5px}}
 .kitty .zzz{display:none}.kitty.act-sleep .zzz{display:block}
@@ -42,7 +42,7 @@ input[type=text],input[type=password],input[type=number]{border:1px solid #e5cbd
 .breed{padding:10px;border-radius:14px;background:#fff8ef;border:2px solid transparent;text-align:center}.breed.selected{border-color:#ed87ae;background:#ffedf4}.breed .emoji{font-size:37px}.breed div{font-size:13px;font-weight:800}
 .gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px}.photo{background:#fff3df;border-radius:13px;padding:8px;font-size:12px}.photo svg{max-width:100%;border-radius:9px}
 .footer{text-align:center;font-size:11px;color:#a98b91;margin:10px 0}
-@media(max-width:390px){.scene{height:300px}.actions button{font-size:11px}.header h1{font-size:19px}}
+@media(max-width:390px){.scene{height:340px}.actions button{font-size:11px}.header h1{font-size:19px}}
 </style></head><body><div class="app">
 <div class="header"><h1>🐾 念念的喵喵成长屋</h1><div class="pill" id="coins">🪙 50</div></div>
 <div id="adopt" class="panel">
@@ -112,10 +112,10 @@ function pieceElement(f,forEdit){let d=document.createElement("div");d.className
 if(forEdit){if(selectedFurniture===f.id)d.classList.add("selected");d.addEventListener("pointerdown",e=>{e.preventDefault();selectedFurniture=f.id;let sc=$("editScene");d.setPointerCapture(e.pointerId);d.classList.add("selected");let move=ev=>{let b=sc.getBoundingClientRect(),xx=16+68*((ev.clientX-b.left)/b.width-.16)/.68,yy=(ev.clientY-b.top)/b.height*100;f.x=Math.min(92,Math.max(8,xx));f.y=Math.min(85,Math.max(37,yy));d.style.left=f.x+"%";d.style.top=f.y+"%";};let up=()=>{d.removeEventListener("pointermove",move);d.removeEventListener("pointerup",up);save();renderFurniture()};d.addEventListener("pointermove",move);d.addEventListener("pointerup",up);});}else d.onclick=()=>{show(label(f.kind)+"：这是奶糖的物品。")};return d}
 function renderFurniture(){for(const [layer,isEdit] of [["furnLayer",false],["editLayer",true]]){let n=$(layer);n.innerHTML="";s.furniture.forEach(f=>n.appendChild(pieceElement(f,isEdit)))}}
 function bedFor(c){let beds=s.furniture.filter(f=>f.kind==="bed");return beds.length?beds[s.cats.indexOf(c)%beds.length]:{x:19,y:70}}
-function putInBed(c){let b=bedFor(c);c.x=b.x;c.y=b.y-3}
+function putInBed(c){let b=bedFor(c);c.x=b.x;c.y=b.y-9}
 function furnitureFor(kind){return s.furniture.find(f=>f.kind===kind)||null}
 function destinationFor(type,c){
- if(type==="sleep"||type==="wake"){let b=bedFor(c);return [b.x,b.y-3]}
+ if(type==="sleep"||type==="wake"){let b=bedFor(c);return [b.x,b.y-9]}
  let f=furnitureFor(type==="feed"?"bowl":type==="drink"?"cup":type==="play"?"ball":"");
  if(f)return [Math.max(10,Math.min(90,f.x+(type==="feed"?-8:-7))),Math.max(39,Math.min(82,f.y-4))];
  return {feed:[68,69],drink:[81,65],play:[44,65],pet:[43,58]}[type]||[43,58]
@@ -132,7 +132,7 @@ function renderCats(){
   d.onclick=()=>{s.selectedCat=i;show("你选中了"+c.name+"！");render()};
   d.className="kitty";
   if(c.wanderUntil&&performance.now()<c.wanderUntil&&!(active&&active.index===i))d.classList.add("stroll");
-  if((c.manualSleep||c.nightBed)&&!(active&&active.index===i)){putInBed(c);d.style.left=c.x+"%";d.style.top=c.y+"%"}
+  if((c.manualSleep||c.nightBed)&&!(active&&active.index===i)&&!(c.sleepWalkingUntil&&performance.now()<c.sleepWalkingUntil)){putInBed(c);d.style.left=c.x+"%";d.style.top=c.y+"%"}
   if(active&&active.index===i)d.classList.add(active.phase==="walking"?"stroll":"act-"+active.type);
   else if(c.sleepWalkingUntil&&performance.now()<c.sleepWalkingUntil)d.classList.add("stroll");
   else if(c.manualSleep||((gameHour()>=20||gameHour()<6)&&s.gameMs>c.awakeUntil))d.classList.add("act-sleep");
@@ -183,7 +183,9 @@ function tick(){if(!s.started||document.hidden||editing)return;let n=performance
   }
  }
  if(s.cats.length===1&&day()>=20&&!s.cats[0].adultPhoto){s.cats[0].adultPhoto=true;snapshot(s.cats[0].name+"成年啦！第二只猫解锁")}if(runMs>6000){runMs=0;save()}if(tab==="room")renderRoom();if(tab==="more")renderMore()}
-document.addEventListener("visibilitychange",()=>{visibleSince=performance.now();if(document.hidden)save()});setInterval(tick,1000);
+document.addEventListener("visibilitychange",()=>{visibleSince=performance.now();if(document.hidden)save()});
+document.getElementById("scene").addEventListener("pointerdown",()=>{const a=document.activeElement;if(a&&["INPUT","TEXTAREA"].includes(a.tagName))a.blur()});
+document.querySelectorAll("#nav button").forEach(b=>b.addEventListener("pointerdown",()=>{const a=document.activeElement;if(a&&["INPUT","TEXTAREA"].includes(a.tagName))a.blur()}));setInterval(tick,1000);
 const mathLabels=["两位数不进位加法","两位数进位加法","两位数不退位减法","两位数退位减法","100以内加减混合","乘法口诀","整除练习","乘加混合","生活应用题","综合挑战"];
 function makeQ(lvl){let a,b,v,text,steps;let t=Math.min(lvl,10),tries=0;
 if(t===1){do{a=rng(11,79);b=rng(10,99-a)}while((a%10+b%10)>=10&&tries++<100);v=a+b;text=a+" + "+b+" = ?";steps="个位："+(a%10)+" + "+(b%10)+" = "+(v%10)+"。十位："+Math.floor(a/10)+" + "+Math.floor(b/10)+" = "+Math.floor(v/10)+"。所以答案是 "+v+"。"}
@@ -250,6 +252,6 @@ $("unlock").onclick=async()=>{let pin=$("pin").value.trim();if(pin.length<4){ale
 $("export").onclick=()=>download("niannian-cat-backup-"+new Date().toISOString().slice(0,10)+".json",backup(),"application/json");
 $("importBtn").onclick=()=>$("importInput").click();$("importInput").onchange=async e=>{if(!e.target.files[0])return;try{await restore(e.target.files[0])}catch(err){alert("恢复失败："+err.message)}};
 $("reset").onclick=()=>{if(confirm("确定删除当前测试版存档吗？这不可撤销。")&&confirm("再次确认：所有测试版数据将丢失。")){localStorage.removeItem(KEY);location.reload()}};
-if(s.started){let c=cat();if(s.dailyLast!==day()){s.dailyLast=day();show("喵～今天照顾小猫了吗？今天想工作赚金币吗？")}else $("bubble").textContent="喵～欢迎回来！";}render();visibleSince=performance.now();
+if(s.started){let c=cat();for(const pet of s.cats){if(!Number.isFinite(pet.x)||!Number.isFinite(pet.y)){pet.x=24;pet.y=56}if(pet.nightBed||pet.manualSleep)putInBed(pet)}if(s.dailyLast!==day()){s.dailyLast=day();show("喵～今天照顾小猫了吗？今天想工作赚金币吗？")}else $("bubble").textContent="喵～欢迎回来！";}render();visibleSince=performance.now();
 })();
 </script></body></html>
