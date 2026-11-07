@@ -24,7 +24,10 @@ h2{font-size:19px;margin:3px 0 12px}h3{font-size:16px;margin:7px 0}.muted{font-s
 .furniture .pic{font-size:45px;line-height:1.1}.furniture .fname{font-size:10px;background:#fff9e7dc;border-radius:10px;padding:1px 5px;white-space:nowrap}
 .furniture.selected{outline:2px dashed #ef6991;border-radius:12px;background:#ffe5eb66}
 .kitty{position:absolute;z-index:6;left:24%;top:56%;width:74px;height:92px;transform:translate(-50%,-50%);transition:left 1.05s ease,top 1.05s ease,width .3s,height .3s;filter:drop-shadow(1px 8px 3px #543d3855);cursor:pointer}
-.kitty svg{width:100%;height:100%;overflow:visible}.kitty .ears,.kitty .head{transform-origin:50% 50%}.kitty .tail{transform-origin:75% 75%;animation:tailmove 2s infinite alternate}.kitty .blink{opacity:0}.kitty .tongue{opacity:0}.kitty.act-feed .head,.kitty.act-drink .head{animation:nibble .4s infinite alternate}.kitty.act-feed .tongue,.kitty.act-drink .tongue{opacity:1}.kitty.act-sleep{transform:translate(-50%,-50%) rotate(70deg)}.kitty.act-sleep .eyes{opacity:0}.kitty.act-sleep .blink{opacity:1}.kitty.act-play{animation:hop .5s infinite alternate}
+.kitty svg{width:100%;height:100%;overflow:visible}.kitty .ears,.kitty .head{transform-origin:50% 50%}.kitty .tail{transform-origin:75% 75%;animation:tailmove 2s infinite alternate}.kitty .blink{opacity:0}.kitty .tongue{opacity:0}.kitty.act-feed .head,.kitty.act-drink .head{animation:nibble .4s infinite alternate}.kitty.act-feed .tongue,.kitty.act-drink .tongue{opacity:1}.kitty.act-sleep{transform:translate(-50%,-50%) rotate(80deg) scale(.72)}
+.furniture.bed{width:94px;height:62px;min-width:94px}
+.furniture.bed .pic{font-size:0;width:94px;height:49px;border-radius:50%;border:10px solid #d999aa;background:radial-gradient(ellipse,#fff4e6,#ebc5b7);box-shadow:inset 0 4px 8px #986f6b55}
+.bed-front{position:absolute;z-index:8;width:83px;height:16px;background:linear-gradient(#edc2c9,#d58d9f);border-radius:5px 5px 45px 45px;border-bottom:4px solid #ae7587;transform:translate(-50%,-50%);pointer-events:none}.kitty.act-sleep .eyes{opacity:0}.kitty.act-sleep .blink{opacity:1}.kitty.act-play{animation:hop .5s infinite alternate}
 @keyframes tailmove{to{transform:rotate(13deg)}}@keyframes nibble{to{transform:translateY(9px) rotate(2deg)}}@keyframes hop{to{translate:0 -18px}}
 .kitty.stroll{animation:steps .22s infinite alternate}@keyframes steps{to{translate:0 -5px}}
 .kitty .zzz{display:none}.kitty.act-sleep .zzz{display:block}
@@ -105,9 +108,11 @@ function svgCat(breed){const fur=(breeds.find(b=>b[0]===breed)||breeds[0])[3];re
 function changeTab(v){if(editing&&v!=="decorate")setEditing(false);tab=v;["room","work","shop","decorate","more"].forEach(id=>$(id).classList.toggle("hidden",id!==tab));document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));render()}
 function label(kind){return {bed:"猫窝",bowl:"食盆",cup:"吸管水杯",ball:"毛线球",plant:"绿植",rug:"地毯",tree:"猫爬架"}[kind]||kind}
 function emoji(kind){return {bed:"🛏️",bowl:"🥣",cup:"🍼",ball:"🧶",plant:"🪴",rug:"🟣",tree:"🌳"}[kind]||"🪑"}
-function pieceElement(f,forEdit){let d=document.createElement("div");d.className="furniture";d.style.left=f.x+"%";d.style.top=f.y+"%";d.style.rotate=f.rot+"deg";d.innerHTML='<div class="pic">'+emoji(f.kind)+'</div><span class="fname">'+label(f.kind)+'</span>';
+function pieceElement(f,forEdit){let d=document.createElement("div");d.className="furniture"+(f.kind==="bed"?" bed":"");d.style.left=f.x+"%";d.style.top=f.y+"%";d.style.rotate=f.rot+"deg";d.innerHTML='<div class="pic">'+emoji(f.kind)+'</div><span class="fname">'+label(f.kind)+'</span>';
 if(forEdit){if(selectedFurniture===f.id)d.classList.add("selected");d.addEventListener("pointerdown",e=>{e.preventDefault();selectedFurniture=f.id;let sc=$("editScene");d.setPointerCapture(e.pointerId);d.classList.add("selected");let move=ev=>{let b=sc.getBoundingClientRect(),xx=16+68*((ev.clientX-b.left)/b.width-.16)/.68,yy=(ev.clientY-b.top)/b.height*100;f.x=Math.min(92,Math.max(8,xx));f.y=Math.min(85,Math.max(37,yy));d.style.left=f.x+"%";d.style.top=f.y+"%";};let up=()=>{d.removeEventListener("pointermove",move);d.removeEventListener("pointerup",up);save();renderFurniture()};d.addEventListener("pointermove",move);d.addEventListener("pointerup",up);});}else d.onclick=()=>{show(label(f.kind)+"：这是奶糖的物品。")};return d}
 function renderFurniture(){for(const [layer,isEdit] of [["furnLayer",false],["editLayer",true]]){let n=$(layer);n.innerHTML="";s.furniture.forEach(f=>n.appendChild(pieceElement(f,isEdit)))}}
+function bedFor(c){let beds=s.furniture.filter(f=>f.kind==="bed");return beds.length?beds[s.cats.indexOf(c)%beds.length]:{x:19,y:70}}
+function putInBed(c){let b=bedFor(c);c.x=b.x;c.y=b.y-3}
 function renderCats(){
  let layer=$("catLayer"),current=new Set();
  s.cats.forEach((c,i)=>{
@@ -119,18 +124,24 @@ function renderCats(){
   d.style.width=(110*k)+"px";d.style.height=(134*k)+"px";d.title=c.name;
   d.onclick=()=>{s.selectedCat=i;show("你选中了"+c.name+"！");render()};
   d.className="kitty";
+  if((c.manualSleep||c.nightBed)&&!(active&&active.index===i)){putInBed(c);d.style.left=c.x+"%";d.style.top=c.y+"%"}
   if(active&&active.index===i)d.classList.add(active.phase==="walking"?"stroll":"act-"+active.type);
   else if(c.sleepWalkingUntil&&performance.now()<c.sleepWalkingUntil)d.classList.add("stroll");
   else if(c.manualSleep||((gameHour()>=20||gameHour()<6)&&s.gameMs>c.awakeUntil))d.classList.add("act-sleep");
  });
- Array.from(layer.children).forEach(d=>{if(!current.has(d.id))d.remove()})
+ Array.from(layer.children).forEach(d=>{if(!current.has(d.id))d.remove()});
+ layer.querySelectorAll(".bed-front").forEach(d=>d.remove());
+ s.cats.forEach((c,i)=>{
+   let sleeping=!(active&&active.index===i)&&(c.manualSleep||((gameHour()>=20||gameHour()<6)&&s.gameMs>c.awakeUntil&&!(c.sleepWalkingUntil&&performance.now()<c.sleepWalkingUntil)));
+   if(sleeping){let b=bedFor(c),rim=document.createElement("div");rim.className="bed-front";rim.style.left=b.x+"%";rim.style.top=(b.y+5)+"%";layer.appendChild(rim)}
+ });
 }
 function renderRoom(){if(!s.started)return;let c=cat();$("coins").textContent="🪙 "+s.coins;$("catTitle").textContent=c.name+" · "+stage(c)+ (s.cats.length>1?" · 点击猫咪切换":"");$("day").textContent="第 "+day()+" 天";$("supplies").textContent="🥫 猫粮 "+s.food+"份 · 💧 清水 "+s.water+"份";for(let k of ["food","water","love"]){$(k+"N").textContent=Math.round(c[k]);$(k+"B").style.width=c[k]+"%"}let h=gameHour(),m=Math.floor((s.gameMs%DAY_MS)/DAY_MS*1440)%60;$("clock").textContent=(h>=19||h<6?"🌙":"☀️")+" 第"+day()+"天 "+String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");$("scene").classList.toggle("night",h>=19||h<6);renderFurniture();renderCats()}
 function render(){if(!s.started){$("adopt").classList.remove("hidden");$("game").classList.add("hidden");renderBreeds();return}$("adopt").classList.add("hidden");$("game").classList.remove("hidden");renderRoom();if(tab==="work")renderWork();if(tab==="shop")renderShop();if(tab==="decorate")$("editInfo").textContent=editing?"已暂停时间：拖动家具可摆放，选中后旋转。":"点击进入装修模式后，可以拖动家具。";if(tab==="more")renderMore()}
 function renderBreeds(){let n=$("breeds");n.innerHTML="";breeds.forEach(b=>{let d=document.createElement("button");d.className="breed"+(selectedBreed===b[0]?" selected":"");d.innerHTML='<div class="emoji">'+b[2]+'</div><div>'+b[1]+'</div>';d.onclick=()=>{selectedBreed=b[0];renderBreeds()};n.appendChild(d)})}
 let selectedBreed="orange";
 function adopt(){let name=$("newCatName").value.trim()||"奶糖";s.started=true;s.cats.push(createCat(selectedBreed,name));snapshot("第1天 · "+name+"来到新家");show("欢迎回家，"+name+"！你今天照顾小猫了吗？今天工作了吗？");save();render()}
-function action(type){if(active||editing)return;let c=cat(),index=s.selectedCat;let destination={feed:[71,69],drink:[85,65],sleep:[19,67],play:[44,65],pet:[43,58],wake:[19,67]}[type];if(type==="feed"&&s.food<=0){show("猫粮没有了！去商店买吧。");return}if(type==="drink"&&s.water<=0){show("水没有了！去商店买吧。");return}
+function action(type){if(active||editing)return;let c=cat(),index=s.selectedCat;let destination={feed:[71,69],drink:[85,65],sleep:[19,67],play:[44,65],pet:[43,58],wake:[19,67]}[type];if(type==="wake"){let b=bedFor(c);destination=[b.x,b.y-3]}if(type==="feed"&&s.food<=0){show("猫粮没有了！去商店买吧。");return}if(type==="drink"&&s.water<=0){show("水没有了！去商店买吧。");return}
 if(type==="wake"){
  if(c.manualSleep){c.manualSleep=false;c.awakeUntil=s.gameMs+DAY_MS/6;show(c.name+"醒来伸懒腰啦！");save();renderRoom();return}
  c.awakeUntil=s.gameMs+DAY_MS/6;
@@ -138,13 +149,14 @@ if(type==="wake"){
  else{c.nightBed=false;show(c.name+"醒来伸懒腰啦！");save();renderRoom();return}
 }
 if(type!=="sleep"){c.manualSleep=false;c.nightBed=false}
+if(type==="sleep"){let b=bedFor(c);destination=[b.x,b.y-3]}
 active={type,index,phase:"walking"};c.x=destination[0];c.y=destination[1];renderRoom();show(c.name+"正在走过去……");setTimeout(()=>{if(!active||active.index!==index)return;active.phase="doing";renderCats();let obj=$("actionObj");obj.className="cataction on";obj.style.left=(destination[0]+8)+"%";obj.style.top=(destination[1]+17)+"%";obj.textContent={feed:"🥣",drink:"🍼",play:"🧶",pet:"💗",sleep:"💤"}[type];show({feed:"正在低头吃食盆里的猫粮……",drink:"正在用吸管喝水……",play:"正在追毛线球！",pet:"呼噜呼噜，好舒服！",sleep:"闭上眼睛睡着了……"}[type]);},1150);
-activeTimer=setTimeout(()=>{if(type==="feed"){s.food--;c.food=clamp(c.food+36);c.love=clamp(c.love+3)}if(type==="drink"){s.water--;c.water=clamp(c.water+36);c.love=clamp(c.love+3)}if(type==="play"){c.love=clamp(c.love+8);c.food=clamp(c.food-3)}if(type==="pet")c.love=clamp(c.love+5);if(type==="sleep"){c.love=clamp(c.love+2);c.manualSleep=true;c.nightBed=true;c.x=19;c.y=70;}c.cared[day()]=Object.assign(c.cared[day()]||{},{[type]:true});active=null;$("actionObj").className="cataction";show(type==="sleep"?c.name+"已经回到猫窝，睡得好香！💤":c.name+"好开心！💗");save();render();},type==="sleep"?7000:4500)}
+activeTimer=setTimeout(()=>{if(type==="feed"){s.food--;c.food=clamp(c.food+36);c.love=clamp(c.love+3)}if(type==="drink"){s.water--;c.water=clamp(c.water+36);c.love=clamp(c.love+3)}if(type==="play"){c.love=clamp(c.love+8);c.food=clamp(c.food-3)}if(type==="pet")c.love=clamp(c.love+5);if(type==="sleep"){c.love=clamp(c.love+2);c.manualSleep=true;c.nightBed=true;putInBed(c);}c.cared[day()]=Object.assign(c.cared[day()]||{},{[type]:true});active=null;$("actionObj").className="cataction";show(type==="sleep"?c.name+"已经回到猫窝，睡得好香！💤":c.name+"好开心！💗");save();render();},type==="sleep"?7000:4500)}
 function tick(){if(!s.started||document.hidden||editing)return;let n=performance.now(),dt=Math.min(2000,Math.max(0,n-visibleSince));visibleSince=n;s.gameMs+=dt;runMs+=dt;for(let c of s.cats){
   const nighttime=gameHour()>=20||gameHour()<6;
   if(nighttime&&s.gameMs>c.awakeUntil&&!c.manualSleep&&!(active&&s.cats[active.index]===c)){
     if(!c.nightBed){
-      c.nightBed=true;c.x=19;c.y=70;c.sleepWalkingUntil=n+1300;
+      c.nightBed=true;putInBed(c);c.sleepWalkingUntil=n+1300;
       if(s.cats[s.selectedCat]===c)show(c.name+"困啦，正在走回猫窝睡觉……");
     }
   }else if(!nighttime){c.nightBed=false}
