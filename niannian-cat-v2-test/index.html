@@ -24,7 +24,7 @@ h2{font-size:19px;margin:3px 0 12px}h3{font-size:16px;margin:7px 0}.muted{font-s
 .furniture .pic{font-size:45px;line-height:1.1}.furniture .fname{font-size:10px;background:#fff9e7dc;border-radius:10px;padding:1px 5px;white-space:nowrap}
 .furniture.selected{outline:2px dashed #ef6991;border-radius:12px;background:#ffe5eb66}
 .kitty{position:absolute;z-index:6;left:24%;top:56%;width:74px;height:92px;transform:translate(-50%,-50%);transition:left 1.05s ease,top 1.05s ease,width .3s,height .3s;filter:drop-shadow(1px 8px 3px #543d3855);cursor:grab;touch-action:none;user-select:none}
-.kitty.dragging{transition:none!important;cursor:grabbing;z-index:12}.kitty svg{width:100%;height:100%;overflow:visible;pointer-events:none}.kitty .ears,.kitty .head{transform-origin:50% 50%}.kitty .tail{transform-origin:75% 75%;animation:tailmove 2s infinite alternate}.kitty .blink{opacity:0}.kitty .tongue{opacity:0}.kitty.act-feed .head,.kitty.act-drink .head{animation:nibble .4s infinite alternate}.kitty.act-feed .tongue,.kitty.act-drink .tongue{opacity:1}.kitty.act-sleep{transform:translate(-50%,-50%) rotate(80deg) scale(.72)}
+.scene.move-cat-mode{outline:3px dashed #e7779c;outline-offset:-7px;touch-action:none}.kitty.dragging{transition:none!important;cursor:grabbing;z-index:12}.kitty svg{width:100%;height:100%;overflow:visible;pointer-events:none}.kitty .ears,.kitty .head{transform-origin:50% 50%}.kitty .tail{transform-origin:75% 75%;animation:tailmove 2s infinite alternate}.kitty .blink{opacity:0}.kitty .tongue{opacity:0}.kitty.act-feed .head,.kitty.act-drink .head{animation:nibble .4s infinite alternate}.kitty.act-feed .tongue,.kitty.act-drink .tongue{opacity:1}.kitty.act-sleep{transform:translate(-50%,-50%) rotate(80deg) scale(.72)}
 .furniture.bed{width:115px;height:76px;min-width:115px;z-index:4}
 .furniture.bed .pic{font-size:0;width:115px;height:65px;border-radius:50%;border:12px solid #d999aa;background:radial-gradient(ellipse,#fff4e6,#ebc5b7);box-shadow:inset 0 4px 8px #986f6b55}
 .bed-front{position:absolute;z-index:8;width:105px;height:22px;background:linear-gradient(#edc2c9,#d58d9f);border-radius:5px 5px 45px 45px;border-bottom:4px solid #ae7587;transform:translate(-50%,-50%);pointer-events:none}.kitty.act-sleep .eyes{opacity:0}.kitty.act-sleep .blink{opacity:1}.kitty.act-play{animation:hop .5s infinite alternate}
@@ -59,6 +59,7 @@ input[type=text],input[type=password],input[type=number]{border:1px solid #e5cbd
 <div class="scene" id="scene"><div class="window"></div><div class="clock" id="clock">☀️ 第1天 06:00</div><div class="bubble" id="bubble">喵～欢迎回家！</div><div id="furnLayer"></div><div id="catLayer"></div><div id="actionObj" class="cataction"></div></div>
 <div class="actions"><button data-care="feed">🥣<div>喂食</div></button><button data-care="drink">🍼<div>喝水</div></button><button data-care="pet">🫳<div>抚摸</div></button><button data-care="play">🧶<div>玩耍</div></button><button data-care="wake">🌙<div>叫醒/睡觉</div></button></div>
 <div class="flex"><span class="muted" id="supplies">猫粮5 · 水5</span><button class="mini" id="takePhoto">📸 拍照</button></div>
+<div class="flex" style="margin-top:10px"><button class="secondary" id="moveCatBtn" style="flex:1">🐾 移动奶糖：关闭</button><span class="muted">按住猫拖动；也可开启移动后点房间位置</span></div>
 <div class="note" id="careNote">第一次领养的小猫很小，照顾它慢慢长大吧。</div>
 </section>
 <section id="work" class="hidden">
@@ -95,7 +96,7 @@ const catalog=[
 ];
 const defaultGame=()=>({version:2,started:false,coins:50,food:5,water:5,gameMs:0,mathLevel:1,mathDone:0,mathCorrect:0,mathHistory:[],wrong:[],q:null,answered:false,practice:[],cats:[],selectedCat:0,furniture:[{id:"bed-1",kind:"bed",x:19,y:70,rot:0},{id:"bowl-1",kind:"bowl",x:71,y:75,rot:0},{id:"cup-1",kind:"cup",x:87,y:71,rot:0}],house:1,photos:[],dailyLast:0,pinHash:null});
 let s=defaultGame();try{let v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.version===2)s=Object.assign(defaultGame(),v)}catch(e){}
-let tab="room",active=null,activeTimer=null,editing=false,selectedFurniture=null,visibleSince=performance.now(),runMs=0,wrongOpen=false,adoptSecond=false,wanderAt=performance.now()+4800,draggingCat=null;
+let tab="room",active=null,activeTimer=null,editing=false,selectedFurniture=null,visibleSince=performance.now(),runMs=0,wrongOpen=false,adoptSecond=false,wanderAt=performance.now()+4800,draggingCat=null,moveCatMode=false;
 const clamp=n=>Math.max(0,Math.min(100,n)),rng=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){$("careNote").textContent="存储空间不足，请家长导出备份！"}}
 function cat(){return s.cats[s.selectedCat]||s.cats[0]}
@@ -120,42 +121,79 @@ function destinationFor(type,c){
  if(f)return [Math.max(10,Math.min(90,f.x+(type==="feed"?-8:-7))),Math.max(39,Math.min(82,f.y-4))];
  return {feed:[68,69],drink:[81,65],play:[44,65],pet:[43,58]}[type]||[43,58]
 }
+function positionCatFromPoint(c,x,y){
+ const bounds=$("scene").getBoundingClientRect();
+ c.manualSleep=false;c.nightBed=false;c.sleepWalkingUntil=0;c.wanderUntil=0;
+ c.awakeUntil=s.gameMs+DAY_MS/6;
+ c.x=Math.min(91,Math.max(9,(x-bounds.left)/bounds.width*100));
+ c.y=Math.min(83,Math.max(40,(y-bounds.top)/bounds.height*100));
+ const d=$("catVisual"+s.cats.indexOf(c));
+ if(d){d.style.left=c.x+"%";d.style.top=c.y+"%";d.classList.remove("act-sleep","stroll")}
+}
+function endCatMove(){
+ if(!draggingCat)return;
+ const idx=draggingCat.index,wasMoved=draggingCat.moved;
+ draggingCat=null;
+ const d=$("catVisual"+idx);if(d)d.classList.remove("dragging");
+ wanderAt=performance.now()+9000;
+ lastDragEnd=performance.now();
+ if(wasMoved){show(s.cats[idx].name+"已经移动到新位置啦！🐾");save()}
+ else show("已选中"+s.cats[idx].name+"。手指拖动，或按下方移动按钮后点击房间。");
+ renderRoom()
+}
 function attachCatDrag(d,c,i){
  d.addEventListener("pointerdown",e=>{
-   if(editing||active||draggingCat||e.button!==0)return;
-   e.preventDefault();
-   draggingCat={index:i,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,moved:false};
-   s.selectedCat=i;
-   d.setPointerCapture(e.pointerId);
-   d.classList.add("dragging");
+  if(editing||active||draggingCat||e.pointerType==="touch")return;
+  e.preventDefault();s.selectedCat=i;
+  draggingCat={index:i,startX:e.clientX,startY:e.clientY,moved:false};
+  d.classList.add("dragging");
  });
- d.addEventListener("pointermove",e=>{
-   const g=draggingCat;
-   if(!g||g.index!==i||g.pointerId!==e.pointerId)return;
-   if(Math.hypot(e.clientX-g.startX,e.clientY-g.startY)>7)g.moved=true;
-   if(!g.moved)return;
-   const bounds=$("scene").getBoundingClientRect();
-   c.manualSleep=false;c.nightBed=false;c.sleepWalkingUntil=0;
-   c.awakeUntil=s.gameMs+DAY_MS/6;
-   c.wanderUntil=0;
-   c.x=Math.min(91,Math.max(9,(e.clientX-bounds.left)/bounds.width*100));
-   c.y=Math.min(83,Math.max(40,(e.clientY-bounds.top)/bounds.height*100));
-   d.style.left=c.x+"%";d.style.top=c.y+"%";
-   d.classList.remove("act-sleep","stroll");
-   d.classList.add("dragging");
- });
- const finish=e=>{
-   const g=draggingCat;
-   if(!g||g.index!==i||g.pointerId!==e.pointerId)return;
-   draggingCat=null;d.classList.remove("dragging");
-   if(g.moved){show(c.name+"被轻轻抱到新位置啦！🐾");wanderAt=performance.now()+8500;save()}
-   else show("你选中了"+c.name+"！按住小猫就可以拖动它。");
-   renderRoom();
- };
- d.addEventListener("pointerup",finish);
- d.addEventListener("pointercancel",finish);
- d.addEventListener("lostpointercapture",e=>{if(draggingCat&&draggingCat.index===i&&draggingCat.pointerId===e.pointerId){draggingCat=null;d.classList.remove("dragging");save()}});
 }
+const scene=$("scene");
+scene.addEventListener("touchstart",e=>{
+ if(editing||active||draggingCat||e.touches.length!==1)return;
+ const t=e.touches[0],rect=scene.getBoundingClientRect();
+ let idx=-1,best=Infinity;
+ s.cats.forEach((c,i)=>{
+  const dist=Math.hypot(t.clientX-(rect.left+c.x/100*rect.width),t.clientY-(rect.top+c.y/100*rect.height));
+  if(dist<best){best=dist;idx=i}
+ });
+ if(best>85&&!moveCatMode)return;
+ if(idx<0)return;
+ s.selectedCat=idx;
+ draggingCat={index:idx,startX:t.clientX,startY:t.clientY,moved:false};
+ $("catVisual"+idx)?.classList.add("dragging");
+ e.preventDefault();
+},{passive:false});
+document.addEventListener("touchmove",e=>{
+ if(!draggingCat||e.touches.length!==1)return;
+ const t=e.touches[0],g=draggingCat;
+ if(Math.hypot(t.clientX-g.startX,t.clientY-g.startY)>8)g.moved=true;
+ if(g.moved)positionCatFromPoint(s.cats[g.index],t.clientX,t.clientY);
+ e.preventDefault()
+},{passive:false});
+document.addEventListener("touchend",e=>{if(draggingCat)endCatMove()},{passive:false});
+document.addEventListener("touchcancel",()=>endCatMove());
+document.addEventListener("pointermove",e=>{
+ if(!draggingCat||e.pointerType==="touch")return;
+ const g=draggingCat;
+ if(Math.hypot(e.clientX-g.startX,e.clientY-g.startY)>8)g.moved=true;
+ if(g.moved)positionCatFromPoint(s.cats[g.index],e.clientX,e.clientY)
+});
+document.addEventListener("pointerup",e=>{if(e.pointerType!=="touch")endCatMove()});
+scene.addEventListener("click",e=>{
+ if(!moveCatMode||draggingCat||active||editing)return;
+ if(performance.now()-lastDragEnd<500)return;
+ positionCatFromPoint(cat(),e.clientX,e.clientY);
+ show(cat().name+"被移动到这里啦！");save();renderRoom()
+});
+let lastDragEnd=0;
+$("moveCatBtn").onclick=()=>{
+ moveCatMode=!moveCatMode;
+ $("moveCatBtn").textContent=moveCatMode?"🐾 移动模式：开启（点房间）":"🐾 移动奶糖：关闭";
+ scene.classList.toggle("move-cat-mode",moveCatMode);
+ if(moveCatMode)show("现在点房间的任意位置，就能把猫咪放过去。也可以直接拖动。");
+};
 function renderCats(){
  let layer=$("catLayer"),current=new Set();
  s.cats.forEach((c,i)=>{
